@@ -1,7 +1,17 @@
 // =================================================================
 // 1. FIREBASE CONFIGURATION
 // =================================================================
-const firebaseConfig = { /* ... 본인의 firebaseConfig 정보 ... */ };
+const firebaseConfig = {
+    apiKey: "AIzaSyDbrsr6g0X6vKujfqBcFY0h--Rn3y1nCEI",
+    authDomain: "bin20703-edda7.firebaseapp.com",
+    databaseURL: "https://bin20703-edda7-default-rtdb.firebaseio.com",
+    projectId: "bin20703-edda7",
+    storageBucket: "bin20703-edda7.firebasestorage.app",
+    messagingSenderId: "242056223892",
+    appId: "1:242056223892:web:885b9bf54aa60ce7732881",
+    measurementId: "G-C2VDTXTVZQ"
+};
+
 
 // =================================================================
 // 2. INITIALIZATION
@@ -55,4 +65,5 @@ signupBtn.addEventListener('click', () => {
             console.error('회원가입 실패:', error);
             alert(`회원가입에 실패했습니다: ${error.message}`);
         });
+
 });
