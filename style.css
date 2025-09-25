@@ -1,0 +1,128 @@
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap');
+
+:root {
+    --background-gradient: linear-gradient(135deg, #131826 0%, #0d121c 100%);
+    --surface-color: rgba(30, 36, 50, 0.7);
+    --primary-accent: #89b1f6;
+    --text-primary: #e1e3e6;
+    --text-secondary: #90949c;
+    --input-background: #242a38;
+    --border-color: rgba(137, 177, 246, 0.2);
+    --danger-color: #f28b82;
+}
+
+* { box-sizing: border-box; }
+
+body {
+    font-family: 'Noto Sans KR', sans-serif;
+    background: var(--background-gradient);
+    color: var(--text-primary);
+    margin: 0;
+    padding: 20px;
+}
+
+.container {
+    width: 100%;
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+/* --- index.html 스타일 --- */
+.header { 
+    border-bottom: 2px solid var(--border-color); 
+    padding-bottom: 15px; 
+    margin-bottom: 25px; 
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.header h1 { margin: 0; }
+.room-card { 
+    background-color: var(--surface-color);
+    border: 1px solid var(--border-color); 
+    padding: 20px; 
+    margin-bottom: 15px; 
+    border-radius: 8px; 
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.room-card-info h3 { margin: 0 0 5px 0; }
+.room-card-info p { margin: 0; color: var(--text-secondary); }
+
+/* --- room.html 스타일 --- */
+.room-container {
+    height: 95vh;
+    display: flex;
+    flex-direction: column;
+    background: var(--surface-color);
+    border-radius: 12px;
+    border: 1px solid var(--border-color);
+    backdrop-filter: blur(10px);
+    overflow: hidden;
+}
+.room-header { padding: 20px 25px; border-bottom: 1px solid var(--border-color); }
+.room-header h1 { margin: 0; font-size: 1.5em; }
+.room-header p { margin: 5px 0 0; color: var(--text-secondary); }
+.nickname-area { font-size: 0.9em; color: var(--text-secondary); margin-top: 10px; }
+.nickname-area span { color: var(--text-primary); font-weight: 500; }
+.nickname-area button { font-size: 0.8em; padding: 4px 8px; margin-left: 8px; background-color: var(--input-background); color: var(--text-primary); }
+
+.main-content {
+    display: flex;
+    flex-grow: 1;
+    overflow: hidden;
+}
+
+.chat-section {
+    flex-grow: 3;
+    display: flex;
+    flex-direction: column;
+    border-right: 1px solid var(--border-color);
+}
+.chat-window { flex-grow: 1; padding: 25px; overflow-y: auto; }
+.chat-message { max-width: 85%; margin-bottom: 15px; padding: 12px 18px; border-radius: 18px; display: flex; flex-direction: column; }
+.chat-message.other-message { background-color: var(--input-background); align-self: flex-start; border-bottom-left-radius: 4px; }
+.chat-message.my-message { background-color: var(--primary-accent); color: #0d121c; align-self: flex-end; border-bottom-right-radius: 4px; }
+.chat-message .sender { font-size: 0.8em; font-weight: 700; margin-bottom: 5px; color: var(--text-secondary); }
+.chat-message.my-message .sender { color: rgba(13, 18, 28, 0.7); }
+.chat-message .message-text { margin: 0; word-wrap: break-word; }
+
+.chat-input-area { display: flex; padding: 20px; border-top: 1px solid var(--border-color); }
+.chat-input-area input { flex-grow: 1; border: none; background: var(--input-background); color: var(--text-primary); padding: 15px; border-radius: 8px; font-size: 1em; outline: none; }
+
+.memo-section {
+    flex-grow: 2;
+    display: flex;
+    flex-direction: column;
+    padding: 20px;
+}
+.memo-section h3 { margin: 0 0 10px 0; }
+.memo-section textarea {
+    width: 100%;
+    flex-grow: 1;
+    background-color: var(--input-background);
+    color: var(--text-primary);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 15px;
+    font-family: inherit;
+    font-size: 0.95em;
+    resize: none;
+    outline: none;
+}
+.memo-tabs { margin-bottom: 15px; }
+.memo-tabs button { background: var(--input-background); }
+.memo-tabs button.active { background: var(--primary-accent); color: #0d121c; }
+
+/* --- 공용 버튼 스타일 --- */
+button { 
+    cursor: pointer; border: none; border-radius: 6px;
+    background-color: var(--primary-accent); color: #0d121c;
+    font-size: 1em; font-weight: 500;
+    padding: 10px 15px;
+    transition: background-color 0.2s;
+}
+button:hover { filter: brightness(1.1); }
+button:disabled { background-color: #999; cursor: not-allowed; opacity: 0.7; }
+.delete-btn { background-color: var(--danger-color); color: white; }
