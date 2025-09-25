@@ -1,8 +1,16 @@
 // =================================================================
 // 1. FIREBASE CONFIGURATION
 // =================================================================
-const firebaseConfig = { /* ... 본인의 firebaseConfig 정보 ... */ };
-
+const firebaseConfig = {
+    apiKey: "AIzaSyDbrsr6g0X6vKujfqBcFY0h--Rn3y1nCEI",
+    authDomain: "bin20703-edda7.firebaseapp.com",
+    databaseURL: "https://bin20703-edda7-default-rtdb.firebaseio.com",
+    projectId: "bin20703-edda7",
+    storageBucket: "bin20703-edda7.firebasestorage.app",
+    messagingSenderId: "242056223892",
+    appId: "1:242056223892:web:885b9bf54aa60ce7732881",
+    measurementId: "G-C2VDTXTVZQ"
+};
 
 // =================================================================
 // 2. DOM ELEMENTS & INITIALIZATION
@@ -24,9 +32,8 @@ auth.signInAnonymously()
   })
   .catch((error) => {
     console.error("Firebase 익명 로그인 실패:", error);
-    alert("Firebase 인증에 실패했습니다. Config 정보가 올바른지 다시 확인해주세요.");
+    alert("Firebase 인증에 실패했습니다. Firebase Console에서 익명 로그인이 활성화되었는지, Config 정보가 올바른지 확인해주세요.");
   });
-
 
 // =================================================================
 // 3. ROOM MANAGEMENT FUNCTIONS
@@ -51,9 +58,8 @@ function deleteRoom(roomId, roomTopic) {
     }
 }
 
-
 // =================================================================
-// 4. DATA READING (DISPLAY ROOMS) - **수정된 핵심 부분**
+// 4. DATA READING (DISPLAY ROOMS)
 // =================================================================
 function loadRooms() {
     const roomsRef = database.ref('rooms');
@@ -65,12 +71,10 @@ function loadRooms() {
             for (const roomId in rooms) {
                 const room = rooms[roomId];
 
-                // **[방어 코드 1]** room 데이터가 객체가 아니거나 비어있으면 건너뜁니다.
                 if (!room || typeof room !== 'object') {
                     continue; 
                 }
 
-                // **[방어 코드 2]** 각 데이터가 없을 경우를 대비해 기본값을 설정합니다.
                 const topic = room.topic || '이름 없는 토론방';
                 const ownerNickname = room.ownerNickname || '알 수 없음';
                 const ownerId = room.ownerId || null;
@@ -94,7 +98,6 @@ function loadRooms() {
                 };
                 buttonsDiv.appendChild(enterButton);
 
-                // **[방어 코드 3]** ownerId가 존재할 경우에만 삭제 버튼을 비교하고 추가합니다.
                 if (currentUser && ownerId && ownerId === currentUser.uid) {
                     const deleteButton = document.createElement('button');
                     deleteButton.className = 'delete-btn';
