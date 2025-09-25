@@ -8,7 +8,7 @@ const firebaseConfig = {
   projectId: "bin20703-edda7", // 스크린샷의 '프로젝트 ID'
   storageBucket: "bin20703-edda7.appspot.com",
   messagingSenderId: "242056223892", // 스크린샷의 '프로젝트 번호'
-  appId: "YOUR_APP_ID" // Firebase 콘솔의 Config에서 직접 확인해주세요.
+  appId: "1:242056223892:web:885b9bf54aa60ce7732881" // Firebase 콘솔의 Config에서 직접 확인해주세요.
 };
 
 // =================================================================
@@ -109,4 +109,5 @@ function loadRooms() {
         }
     });
 }
+
 
