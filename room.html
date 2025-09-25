@@ -4,74 +4,33 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>토론 진행 중</title>
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap');
-        :root {
-            --background-gradient: linear-gradient(135deg, #131826 0%, #0d121c 100%);
-            --surface-color: rgba(30, 36, 50, 0.7);
-            --primary-accent: #89b1f6;
-            --text-primary: #e1e3e6;
-            --text-secondary: #90949c;
-            --input-background: #242a38;
-            --border-color: rgba(137, 177, 246, 0.2);
-        }
-        * { box-sizing: border-box; }
-        body {
-            font-family: 'Noto Sans KR', sans-serif;
-            background: var(--background-gradient);
-            color: var(--text-primary);
-            margin: 0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-        }
-        .container {
-            width: 100%;
-            max-width: 800px;
-            height: 90vh;
-            display: flex;
-            flex-direction: column;
-            background: var(--surface-color);
-            border-radius: 12px;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-            border: 1px solid var(--border-color);
-            backdrop-filter: blur(10px);
-            overflow: hidden;
-        }
-        .room-header { padding: 20px 25px; border-bottom: 1px solid var(--border-color); }
-        .room-header h1 { margin: 0; font-size: 1.5em; }
-        .room-header p { margin: 5px 0 0; color: var(--text-secondary); }
-        .room-header button { background: var(--primary-accent); color: #0d121c; border: none; border-radius: 6px; padding: 8px 15px; font-weight: 500; cursor: pointer; margin-top: 10px; }
-        .chat-window { flex-grow: 1; padding: 25px; overflow-y: auto; display: flex; flex-direction: column; }
-        .chat-window::-webkit-scrollbar { width: 6px; }
-        .chat-window::-webkit-scrollbar-track { background: transparent; }
-        .chat-window::-webkit-scrollbar-thumb { background-color: var(--primary-accent); border-radius: 10px; }
-        .chat-message { max-width: 75%; margin-bottom: 15px; padding: 12px 18px; border-radius: 18px; display: flex; flex-direction: column; }
-        .chat-message.other-message { background-color: var(--input-background); align-self: flex-start; border-bottom-left-radius: 4px; }
-        .chat-message.my-message { background-color: var(--primary-accent); color: #0d121c; align-self: flex-end; border-bottom-right-radius: 4px; }
-        .chat-message .sender { font-size: 0.8em; font-weight: 700; margin-bottom: 5px; color: var(--text-secondary); }
-        .chat-message.my-message .sender { color: rgba(13, 18, 28, 0.7); }
-        .chat-message .message-text { margin: 0; word-wrap: break-word; }
-        .chat-input-area { display: flex; padding: 20px; border-top: 1px solid var(--border-color); }
-        .chat-input-area input { flex-grow: 1; border: none; background: var(--input-background); color: var(--text-primary); padding: 15px; border-radius: 8px; font-size: 1em; outline: none; }
-        .chat-input-area button { border: none; background: var(--primary-accent); color: #0d121c; padding: 15px 25px; margin-left: 10px; border-radius: 8px; font-weight: 700; cursor: pointer; }
-    </style>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div class="container">
+    <div class="container room-container">
         <header class="room-header">
-            <h1 id="room-topic">토론 주제를 불러오는 중...</h1>
+            <h1 id="room-topic">...</h1>
             <p id="room-owner-info"></p>
+            <div id="nickname-area"></div>
             <div id="owner-controls"></div>
         </header>
-        <main class="chat-window" id="chat-window"></main>
-        <footer class="chat-input-area">
-            <input type="text" id="chat-input" placeholder="메시지를 입력하세요..." autocomplete="off">
-            <button id="send-btn">전송</button>
-        </footer>
+        <div class="main-content">
+            <section class="chat-section">
+                <main class="chat-window" id="chat-window"></main>
+                <footer class="chat-input-area">
+                    <input type="text" id="chat-input" placeholder="메시지를 입력하세요..." autocomplete="off">
+                    <button id="send-btn">전송</button>
+                </footer>
+            </section>
+            <section class="memo-section">
+                <div class="memo-tabs">
+                    <button id="personal-memo-btn" class="active">개인 메모</button>
+                    <button id="shared-memo-btn">공유 메모</button>
+                </div>
+                <textarea id="memo-pad" placeholder="여기에 메모를 작성하세요..."></textarea>
+            </section>
+        </div>
     </div>
-    
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
