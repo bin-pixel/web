@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>로그인 - 토론의 장</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        /* 로그인 페이지 전용 스타일 */
+        .auth-container {
+            max-width: 400px;
+            margin: 50px auto;
+            padding: 30px;
+            background-color: var(--surface-color);
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+        }
+        .auth-container h2 { text-align: center; margin-bottom: 25px; }
+        .auth-form input {
+            width: 100%;
+            padding: 15px;
+            margin-bottom: 15px;
+            background: var(--input-background);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            color: var(--text-primary);
+            font-size: 1em;
+        }
+        .auth-buttons {
+            display: flex;
+            gap: 10px;
+        }
+        .auth-buttons button { flex-grow: 1; }
+    </style>
+</head>
+<body>
+    <div class="auth-container">
+        <h2>토론의 장 로그인</h2>
+        <form id="login-form" class="auth-form">
+            <input type="email" id="email" placeholder="이메일" required>
+            <input type="password" id="password" placeholder="비밀번호" required>
+            <div class="auth-buttons">
+                <button type="submit">로그인</button>
+                <button type="button" id="signup-btn">회원가입</button>
+            </div>
+        </form>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+    <script src="login.js"></script>
+</body>
+</html>
