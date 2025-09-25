@@ -2,13 +2,13 @@
 // 1. FIREBASE CONFIGURATION
 // =================================================================
 const firebaseConfig = {
-  apiKey: "AIzaSyA_TaVEs-TRL1aUFKAfLUdZ2P_X9d5Zbv8",
-  authDomain: "YOUR_AUTH_DOMAIN",
-  databaseURL: "https://bin20703-edda7-default-rtdb.firebaseio.com/",
-  projectId: "bin20703-edda7",
-  storageBucket: "YOUR_STORAGE_BUCKET",
-  messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
-  appId: "YOUR_APP_ID"
+  apiKey: "AIzaSyDbrsr6g0X6vKujfqBcFY0h-Rn3y1nCEI", // 스크린샷의 '웹 API 키'
+  authDomain: "bin20703-edda7.firebaseapp.com",
+  databaseURL: "https://bin20703-edda7-default-rtdb.firebaseio.com",
+  projectId: "bin20703-edda7", // 스크린샷의 '프로젝트 ID'
+  storageBucket: "bin20703-edda7.appspot.com",
+  messagingSenderId: "242056223892", // 스크린샷의 '프로젝트 번호'
+  appId: "YOUR_APP_ID" // Firebase 콘솔의 Config에서 직접 확인해주세요.
 };
 
 // =================================================================
@@ -109,3 +109,4 @@ function loadRooms() {
         }
     });
 }
+
