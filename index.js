@@ -29,23 +29,19 @@ let currentUser = null;
 // =================================================================
 auth.onAuthStateChanged((user) => {
     if (user) {
-        // 사용자가 로그인한 경우
         currentUser = user;
         console.log('로그인 상태:', currentUser.email);
         createRoomBtn.disabled = false;
         loadRooms();
         addLogoutButton();
     } else {
-        // 사용자가 로그아웃했거나, 로그인하지 않은 경우
         console.log('로그아웃 상태 또는 로그인 필요');
-        window.location.href = 'login.html'; // 로그인 페이지로 리디렉션
+        window.location.href = 'login.html';
     }
 });
 
 function addLogoutButton() {
-    // 로그아웃 버튼이 이미 있는지 확인하여 중복 생성 방지
     if (document.getElementById('logout-btn')) return;
-
     const logoutBtn = document.createElement('button');
     logoutBtn.id = 'logout-btn';
     logoutBtn.textContent = '로그아웃';
@@ -90,9 +86,7 @@ function loadRooms() {
         if (rooms) {
             for (const roomId in rooms) {
                 const room = rooms[roomId];
-
                 if (!room || typeof room !== 'object') continue;
-
                 const topic = room.topic || '이름 없는 토론방';
                 const ownerNickname = room.ownerNickname || '알 수 없음';
                 
@@ -104,7 +98,6 @@ function loadRooms() {
                 infoDiv.innerHTML = `<h3>${topic}</h3><p>진행자: ${ownerNickname}</p>`;
 
                 const buttonsDiv = document.createElement('div');
-
                 const enterButton = document.createElement('button');
                 enterButton.textContent = '입장하기';
                 enterButton.onclick = () => { window.location.href = `room.html?id=${roomId}`; };
