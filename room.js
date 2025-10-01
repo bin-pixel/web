@@ -11,7 +11,6 @@ const firebaseConfig = {
     appId: "1:242056223892:web:885b9bf54aa60ce7732881",
     measurementId: "G-C2VDTXTVZQ"
 };
-
 // =================================================================
 // 2. INITIALIZATION
 // =================================================================
@@ -58,7 +57,7 @@ document.addEventListener('DOMContentLoaded', () => {
     auth.onAuthStateChanged((user) => {
         if (user) {
             currentUser = user;
-            loadRoomInfo();
+            loadRoomInfo(); // Load room info first, which then calls other setup functions
         } else {
             alert("토론방에 참여하려면 로그인이 필요합니다.");
             window.location.href = 'login.html';
@@ -134,4 +133,90 @@ function sendMessage() {
     const userNickname = currentUser.email.split('@')[0];
     if (messageText && currentUser && currentRoomId) {
         database.ref(`chats/${currentRoomId}`).push({
-            senderId: currentUser.
+            senderId: currentUser.uid,
+            senderNickname: userNickname,
+            text: messageText,
+            timestamp: firebase.database.ServerValue.TIMESTAMP
+        });
+        chatInputElement.value = '';
+    }
+}
+
+function setupMemoListeners() {
+    personalMemoBtn.addEventListener('click', () => switchMemoTab('personal'));
+    sharedMemoBtn.addEventListener('click', () => switchMemoTab('shared'));
+
+    memoPadElement.addEventListener('keyup', () => {
+        clearTimeout(memoTimeout);
+        memoTimeout = setTimeout(saveMemo, 300);
+    });
+
+    toggleMemoBtn.addEventListener('click', () => {
+        memoSection.classList.toggle('hidden');
+        chatSection.classList.toggle('full-width');
+    });
+}
+
+function switchMemoTab(type) {
+    currentMemoType = type;
+    personalMemoBtn.classList.toggle('active', type === 'personal');
+    sharedMemoBtn.classList.toggle('active', type === 'shared');
+    
+    sharedMemoBtn.textContent = `${currentUserRole} 공유 메모`;
+
+    database.ref(getMemoPath()).off();
+    loadMemo(type);
+}
+
+function getMemoPath() {
+    return currentMemoType === 'personal'
+        ? `memos/${currentRoomId}/personal/${currentUser.uid}`
+        : `memos/${currentRoomId}/shared/${currentUserRole}`;
+}
+
+function loadMemo(type) {
+    database.ref(getMemoPath()).on('value', (snapshot) => {
+        if (currentMemoType === type) {
+            memoPadElement.value = snapshot.val() || '';
+        }
+    });
+}
+
+function saveMemo() {
+    database.ref(getMemoPath()).set(memoPadElement.value);
+}
+
+function startAiAnalysis() {
+    alert("AI 분석을 시작합니다. 이 방의 전체 대화 내용이 Gemini로 전송됩니다.");
+    const chatsRef = database.ref('chats/' + currentRoomId);
+    
+    chatsRef.once('value').then(snapshot => {
+        const messages = snapshot.val();
+        if (!messages) { return alert("분석할 대화 내용이 없습니다."); }
+        let chatLog = Object.values(messages)
+            .sort((a, b) => a.timestamp - b.timestamp)
+            .map(msg => `${msg.senderNickname || '익명'}: ${msg.text}`)
+            .join('\n');
+        const analyzeDebate = functions.httpsCallable('analyzeDebateWithGemini');
+        analyzeDebate({ chatLog })
+            .then(result => {
+                const formattedResult = JSON.stringify(result.data, null, 2);
+                alert("AI 분석 완료!\n\n" + formattedResult);
+            })
+            .catch(error => {
+                console.error("AI 분석 중 오류 발생:", error);
+                alert(`AI 분석에 실패했습니다: ${error.message}`);
+            });
+    });
+}
+
+// =================================================================
+// 5. EVENT LISTENERS
+// =================================================================
+sendBtnElement.addEventListener('click', sendMessage);
+chatInputElement.addEventListener('keyup', (e) => {
+    if (e.key === 'Enter') sendMessage();
+});
+leaveRoomBtn.addEventListener('click', () => {
+    window.location.href = 'index.html';
+});
