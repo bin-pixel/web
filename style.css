@@ -27,7 +27,31 @@ body {
     margin: 0 auto;
 }
 
-/* --- index.html 스타일 --- */
+/* --- 로그인 페이지 스타일 --- */
+.auth-container {
+    max-width: 400px;
+    margin: 50px auto;
+    padding: 30px;
+    background-color: var(--surface-color);
+    border-radius: 12px;
+    border: 1px solid var(--border-color);
+}
+.auth-container h2 { text-align: center; margin-bottom: 25px; }
+.auth-form input {
+    width: 100%;
+    padding: 15px;
+    margin-bottom: 15px;
+    background: var(--input-background);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    color: var(--text-primary);
+    font-size: 1em;
+}
+.auth-buttons { display: flex; gap: 10px; }
+.auth-buttons button { flex-grow: 1; }
+
+
+/* --- 메인 페이지 스타일 --- */
 .header { 
     border-bottom: 2px solid var(--border-color); 
     padding-bottom: 15px; 
@@ -51,7 +75,7 @@ body {
 .room-card-info h3 { margin: 0 0 5px 0; }
 .room-card-info p { margin: 0; color: var(--text-secondary); }
 
-/* --- room.html 스타일 --- */
+/* --- 토론방 페이지 스타일 --- */
 .room-container {
     height: 95vh;
     max-width: 1200px;
@@ -76,13 +100,6 @@ body {
     margin-top: 10px; 
 }
 .nickname-area span { color: var(--text-primary); font-weight: 500; }
-.nickname-area button { 
-    font-size: 0.8em; 
-    padding: 4px 8px; 
-    margin-left: 8px; 
-    background-color: var(--input-background); 
-    color: var(--text-primary); 
-}
 
 .main-content {
     display: flex;
@@ -128,7 +145,6 @@ body {
     border-right: none;
 }
 
-.memo-section h3 { margin: 0 0 10px 0; }
 .memo-section textarea {
     width: 100%;
     flex-grow: 1;
