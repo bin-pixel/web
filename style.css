@@ -47,12 +47,14 @@ body {
     justify-content: space-between;
     align-items: center;
 }
+.room-card-info { flex-grow: 1; }
 .room-card-info h3 { margin: 0 0 5px 0; }
 .room-card-info p { margin: 0; color: var(--text-secondary); }
 
 /* --- room.html 스타일 --- */
 .room-container {
     height: 95vh;
+    max-width: 1200px;
     display: flex;
     flex-direction: column;
     background: var(--surface-color);
@@ -61,12 +63,26 @@ body {
     backdrop-filter: blur(10px);
     overflow: hidden;
 }
-.room-header { padding: 20px 25px; border-bottom: 1px solid var(--border-color); }
+.room-header { 
+    padding: 20px 25px; 
+    border-bottom: 1px solid var(--border-color); 
+    position: relative; 
+}
 .room-header h1 { margin: 0; font-size: 1.5em; }
 .room-header p { margin: 5px 0 0; color: var(--text-secondary); }
-.nickname-area { font-size: 0.9em; color: var(--text-secondary); margin-top: 10px; }
+.nickname-area { 
+    font-size: 0.9em; 
+    color: var(--text-secondary); 
+    margin-top: 10px; 
+}
 .nickname-area span { color: var(--text-primary); font-weight: 500; }
-.nickname-area button { font-size: 0.8em; padding: 4px 8px; margin-left: 8px; background-color: var(--input-background); color: var(--text-primary); }
+.nickname-area button { 
+    font-size: 0.8em; 
+    padding: 4px 8px; 
+    margin-left: 8px; 
+    background-color: var(--input-background); 
+    color: var(--text-primary); 
+}
 
 .main-content {
     display: flex;
@@ -79,8 +95,13 @@ body {
     display: flex;
     flex-direction: column;
     border-right: 1px solid var(--border-color);
+    transition: all 0.3s ease;
 }
 .chat-window { flex-grow: 1; padding: 25px; overflow-y: auto; }
+.chat-window::-webkit-scrollbar { width: 6px; }
+.chat-window::-webkit-scrollbar-track { background: transparent; }
+.chat-window::-webkit-scrollbar-thumb { background-color: var(--primary-accent); border-radius: 10px; }
+
 .chat-message { max-width: 85%; margin-bottom: 15px; padding: 12px 18px; border-radius: 18px; display: flex; flex-direction: column; }
 .chat-message.other-message { background-color: var(--input-background); align-self: flex-start; border-bottom-left-radius: 4px; }
 .chat-message.my-message { background-color: var(--primary-accent); color: #0d121c; align-self: flex-end; border-bottom-right-radius: 4px; }
@@ -96,7 +117,17 @@ body {
     display: flex;
     flex-direction: column;
     padding: 20px;
+    min-width: 300px;
+    transition: all 0.3s ease;
 }
+.memo-section.hidden {
+    display: none;
+}
+.chat-section.full-width {
+    flex-grow: 5;
+    border-right: none;
+}
+
 .memo-section h3 { margin: 0 0 10px 0; }
 .memo-section textarea {
     width: 100%;
@@ -112,7 +143,7 @@ body {
     outline: none;
 }
 .memo-tabs { margin-bottom: 15px; }
-.memo-tabs button { background: var(--input-background); }
+.memo-tabs button { background: var(--input-background); color: var(--text-primary); }
 .memo-tabs button.active { background: var(--primary-accent); color: #0d121c; }
 
 /* --- 공용 버튼 스타일 --- */
@@ -122,7 +153,24 @@ button {
     font-size: 1em; font-weight: 500;
     padding: 10px 15px;
     transition: background-color 0.2s;
+    margin-left: 10px;
 }
 button:hover { filter: brightness(1.1); }
 button:disabled { background-color: #999; cursor: not-allowed; opacity: 0.7; }
 .delete-btn { background-color: var(--danger-color); color: white; }
+#create-room-btn { margin-left: 0; }
+
+/* --- 헤더 버튼 그룹 --- */
+.header-buttons {
+    position: absolute;
+    top: 20px;
+    right: 25px;
+    display: flex;
+    gap: 10px;
+}
+.header-buttons button {
+    background-color: var(--input-background);
+    color: var(--text-primary);
+    font-size: 0.9em;
+    padding: 8px 12px;
+}
