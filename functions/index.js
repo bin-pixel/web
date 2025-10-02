@@ -20,7 +20,7 @@ const GEMINI_API_KEY = "AIzaSyDiCGOm3BrLQOP6ZQmZW2Pz2WlLII0hHdY";
  */
 exports.analyzeDebateWithGemini = functions.https.onCall(async (data, context) => {
     // API 키가 설정되었는지 확인
-    if (!GEMINI_API_KEY || GEMINI_API_KEY === "여기에_당신의_실제_API_키를_붙여넣으세요") {
+    if (!GEMINI_API_KEY || GEMINI_API_KEY === "AIzaSyDiCGOm3BrLQOP6ZQmZW2Pz2WlLII0hHdY") {
         throw new functions.https.HttpsError(
             "failed-precondition", 
             "Gemini API 키가 functions/index.js 파일에 설정되지 않았습니다."
