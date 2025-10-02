@@ -11,11 +11,9 @@ const firebaseConfig = {
 
 const createRoomBtn = document.getElementById('create-room-btn');
 const roomListElement = document.getElementById('room-list');
-const headerElement = document.querySelector('.header');
 const profileBtn = document.getElementById('profile-btn');
 const logoutBtn = document.getElementById('logout-btn');
 
-// 모달 관련 DOM
 const createRoomModal = document.getElementById('create-room-modal');
 const createRoomForm = document.getElementById('create-room-form');
 const roomTopicInput = document.getElementById('room-topic-input');
@@ -145,7 +143,6 @@ createRoomForm.addEventListener('submit', (e) => {
 function deleteRoom(roomId, roomTopic) {
     if (confirm(`'${roomTopic}' 방을 정말 삭제하시겠습니까?`)) {
         database.ref('rooms/' + roomId).remove();
-        // 부가 데이터(채팅, 메모 등)도 함께 삭제하는 것이 좋습니다.
         database.ref('chats/' + roomId).remove();
         database.ref('memos/' + roomId).remove();
         database.ref('typing/' + roomId).remove();
@@ -159,11 +156,13 @@ function loadRooms() {
         roomListElement.innerHTML = '<h2>진행중인 토론</h2>';
 
         if (rooms) {
+            let hasRooms = false;
             for (const roomId in rooms) {
                 const room = rooms[roomId];
                 if (!room || typeof room !== 'object') continue;
                 if (room.isPrivate) continue;
 
+                hasRooms = true;
                 const topic = room.topic || '이름 없는 토론방';
                 const ownerNickname = room.ownerNickname || '알 수 없음';
                 
@@ -191,6 +190,9 @@ function loadRooms() {
                 roomCard.appendChild(infoDiv);
                 roomCard.appendChild(buttonsDiv);
                 roomListElement.appendChild(roomCard);
+            }
+            if (!hasRooms) {
+                roomListElement.innerHTML += '<p>진행중인 공개 토론이 없습니다.</p>';
             }
         } else {
             roomListElement.innerHTML += '<p>진행중인 토론이 없습니다.</p>';
