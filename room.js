@@ -41,8 +41,6 @@ const chatChannelsList = document.getElementById('chat-channels-list');
 const typingIndicator = document.getElementById('typing-indicator');
 const voteSection = document.getElementById('vote-section');
 const inviteBtn = document.getElementById('invite-btn');
-
-// 모달 DOM
 const roomSettingsBtn = document.getElementById('room-settings-btn');
 const roomSettingsModal = document.getElementById('room-settings-modal');
 const roomSettingsForm = document.getElementById('room-settings-form');
@@ -145,7 +143,18 @@ function updateNicknameDisplay(nickname) {
     document.getElementById('change-nickname-btn').addEventListener('click', () => {
         const newNickname = prompt("새 닉네임을 입력하세요:", nickname);
         if (newNickname && newNickname.trim() !== '') {
-            database.ref(`rooms/${currentRoomId}/participants/${currentUser.uid}/nickname`).set(newNickname.trim());
+            let isTaken = false;
+            for(const uid in currentRoomData.participants) {
+                if(currentRoomData.participants[uid].nickname === newNickname.trim()) {
+                    isTaken = true;
+                    break;
+                }
+            }
+            if(isTaken) {
+                alert("이미 사용 중인 닉네임입니다.");
+            } else {
+                database.ref(`rooms/${currentRoomId}/participants/${currentUser.uid}/nickname`).set(newNickname.trim());
+            }
         }
     });
 }
@@ -403,15 +412,16 @@ function applyPermissions() {
 }
 
 function loadChatMessages() {
-    database.ref().off('value');
-    const chatRef = database.ref(`chats/${currentRoomId}/${activeChatChannel}`).orderByChild('timestamp');
-    chatRef.on('value', (snapshot) => {
+    const chatRef = database.ref(`chats/${currentRoomId}/${activeChatChannel}`);
+    chatRef.orderByChild('timestamp').on('value', (snapshot) => {
         chatWindowElement.innerHTML = '';
         const messages = snapshot.val();
         if (messages) {
             Object.values(messages).forEach(displayChatMessage);
         }
-        chatWindowElement.scrollTop = chatWindowElement.scrollHeight;
+        if(chatWindowElement.scrollHeight - chatWindowElement.scrollTop < chatWindowElement.clientHeight + 200) {
+            chatWindowElement.scrollTop = chatWindowElement.scrollHeight;
+        }
     });
 }
 
@@ -523,6 +533,7 @@ chatInputElement.addEventListener('keyup', (e) => {
     if (e.key === 'Enter') sendMessage();
 });
 leaveRoomBtn.addEventListener('click', () => {
+    database.ref(`typing/${currentRoomId}/${currentUser.uid}`).remove();
     window.location.href = 'index.html';
 });
 
@@ -535,7 +546,6 @@ roomSettingsBtn.addEventListener('click', () => {
         if(roleName === '진행자') continue;
         addRoleInputToSettings(roleName, roles[roleName]);
     }
-
     roomSettingsModal.style.display = 'flex';
 });
 
@@ -551,19 +561,15 @@ function addRoleInputToSettings(name = '', roleData = {}) {
         hasRoleChat: !!roleData.hasRoleChat
     };
     const color = roleData.color || '#ffffff';
-
     const li = document.createElement('li');
-    
     const colorInput = document.createElement('input');
     colorInput.type = 'color';
     colorInput.value = color;
-
     const nameInput = document.createElement('input');
     nameInput.type = 'text';
     nameInput.placeholder = '역할 이름';
     nameInput.value = name;
     nameInput.required = true;
-
     const permissionsDiv = document.createElement('div');
     permissionsDiv.className = 'permissions';
     permissionsDiv.innerHTML = `
@@ -572,12 +578,10 @@ function addRoleInputToSettings(name = '', roleData = {}) {
         <label title="이 역할끼리만 사용하는 별도의 공유 메모장이 생성됩니다."><input type="checkbox" class="perm-hasRoleSharedMemo" ${permissions.hasRoleSharedMemo ? 'checked' : ''}>역할 메모</label>
         <label title="이 역할끼리만 사용하는 별도의 채팅 채널이 생성됩니다."><input type="checkbox" class="perm-hasRoleChat" ${permissions.hasRoleChat ? 'checked' : ''}>역할 채팅</label>
     `;
-
     const removeBtn = document.createElement('button');
     removeBtn.type = 'button';
     removeBtn.textContent = '삭제';
     removeBtn.onclick = () => li.remove();
-
     li.appendChild(colorInput);
     li.appendChild(nameInput);
     li.appendChild(permissionsDiv);
@@ -585,16 +589,32 @@ function addRoleInputToSettings(name = '', roleData = {}) {
     settingsRolesList.appendChild(li);
 }
 
-roomSettingsForm.addEventListener('submit', (e) => {
+roomSettingsForm.addEventListener('submit', async (e) => {
     e.preventDefault();
     const newRoles = { ...currentRoomData.roles };
     const roleItems = settingsRolesList.querySelectorAll('li');
     const roleNamesOnScreen = new Set();
+    let hasDuplicate = false;
+
+    roleItems.forEach(item => {
+        const roleName = item.querySelector('input[type="text"]').value.trim();
+        if(roleNamesOnScreen.has(roleName)) {
+            hasDuplicate = true;
+        }
+        roleNamesOnScreen.add(roleName);
+    });
+
+    if (hasDuplicate) {
+        alert("중복된 역할 이름이 있습니다. 각 역할의 이름은 고유해야 합니다.");
+        return;
+    }
+
+    const deletedRoles = Object.keys(newRoles).filter(role => role !== '진행자' && !roleNamesOnScreen.has(role));
+    deletedRoles.forEach(roleName => delete newRoles[roleName]);
 
     roleItems.forEach(item => {
         const roleName = item.querySelector('input[type="text"]').value.trim();
         if (roleName) {
-            roleNamesOnScreen.add(roleName);
             newRoles[roleName] = {
                 color: item.querySelector('input[type="color"]').value,
                 canChat: item.querySelector('.perm-canChat').checked,
@@ -605,15 +625,23 @@ roomSettingsForm.addEventListener('submit', (e) => {
         }
     });
 
-    for (const roleName in newRoles) {
-        if(roleName !== '진행자' && !roleNamesOnScreen.has(roleName)) {
-            delete newRoles[roleName];
-        }
-    }
+    await database.ref(`rooms/${currentRoomId}/roles`).set(newRoles);
 
-    database.ref(`rooms/${currentRoomId}/roles`).set(newRoles)
-        .then(() => roomSettingsModal.style.display = 'none')
-        .catch(error => alert("역할 정보 저장에 실패했습니다: " + error.message));
+    if (deletedRoles.length > 0) {
+        const participantsRef = database.ref(`rooms/${currentRoomId}/participants`);
+        participantsRef.transaction(participants => {
+            if (participants) {
+                for (const uid in participants) {
+                    if (participants[uid].roles) {
+                        participants[uid].roles = participants[uid].roles.filter(role => !deletedRoles.includes(role));
+                    }
+                }
+            }
+            return participants;
+        });
+    }
+    
+    roomSettingsModal.style.display = 'none';
 });
 
 roomSettingsModal.querySelectorAll('.cancel-settings-btn').forEach(btn => {
