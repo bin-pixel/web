@@ -10,7 +10,11 @@
     <div class="container">
         <header class="header">
             <h1>토론의 장 🚀</h1>
-            <button id="create-room-btn" disabled>새 토론방 만들기</button>
+            <div class="header-controls">
+                <button id="profile-btn">프로필</button>
+                <button id="create-room-btn" disabled>새 토론방 만들기</button>
+                <button id="logout-btn" style="display: none;">로그아웃</button>
+            </div>
         </header>
         <main id="room-list">
             <h2>진행중인 토론</h2>
@@ -30,6 +34,9 @@
                     <ul id="roles-list"></ul>
                     <button type="button" id="add-role-btn">+ 역할 추가</button>
                 </div>
+                <div class="form-group">
+                    <label><input type="checkbox" id="is-private-checkbox"> 비공개 방 (링크로만 입장 가능)</label>
+                </div>
                 <div style="display: flex; gap: 10px; justify-content: flex-end;">
                     <button type="button" id="cancel-create-btn">취소</button>
                     <button type="submit">만들기</button>
@@ -37,10 +44,5 @@
             </form>
         </div>
     </div>
-
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
-    <script src="index.js"></script>
-</body>
+    </body>
 </html>
