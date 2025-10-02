@@ -1,6 +1,3 @@
-// =================================================================
-// 1. FIREBASE CONFIGURATION
-// =================================================================
 const firebaseConfig = {
     apiKey: "AIzaSyDbrsr6g0X6vKujfqBcFY0h--Rn3y1nCEI",
     authDomain: "bin20703-edda7.firebaseapp.com",
@@ -12,24 +9,15 @@ const firebaseConfig = {
     measurementId: "G-C2VDTXTVZQ"
 };
 
-
-// =================================================================
-// 2. INITIALIZATION
-// =================================================================
 firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
+const database = firebase.database();
 
-// DOM Elements
 const loginForm = document.getElementById('login-form');
 const emailInput = document.getElementById('email');
 const passwordInput = document.getElementById('password');
 const signupBtn = document.getElementById('signup-btn');
 
-// =================================================================
-// 3. EVENT LISTENERS
-// =================================================================
-
-// 로그인 처리
 loginForm.addEventListener('submit', (e) => {
     e.preventDefault();
     const email = emailInput.value;
@@ -38,7 +26,7 @@ loginForm.addEventListener('submit', (e) => {
     auth.signInWithEmailAndPassword(email, password)
         .then((userCredential) => {
             console.log('로그인 성공:', userCredential.user);
-            window.location.href = 'index.html'; // 로그인 성공 시 메인 페이지로 이동
+            window.location.href = 'index.html';
         })
         .catch((error) => {
             console.error('로그인 실패:', error);
@@ -46,7 +34,6 @@ loginForm.addEventListener('submit', (e) => {
         });
 });
 
-// 회원가입 처리
 signupBtn.addEventListener('click', () => {
     const email = emailInput.value;
     const password = passwordInput.value;
@@ -59,11 +46,16 @@ signupBtn.addEventListener('click', () => {
     auth.createUserWithEmailAndPassword(email, password)
         .then((userCredential) => {
             console.log('회원가입 성공:', userCredential.user);
+            // 사용자 정보 DB에 기본값 저장 (선택사항)
+            database.ref('users/' + userCredential.user.uid).set({
+                email: userCredential.user.email,
+                nickname: userCredential.user.email.split('@')[0],
+                createdAt: new Date().toISOString()
+            });
             alert("회원가입이 완료되었습니다. 다시 로그인해주세요.");
         })
         .catch((error) => {
             console.error('회원가입 실패:', error);
             alert(`회원가입에 실패했습니다: ${error.message}`);
         });
-
 });
