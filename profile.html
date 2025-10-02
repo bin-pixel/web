@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>프로필 설정 - 토론의 장</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="auth-container">
+        <h2>프로필 설정</h2>
+        <form id="profile-form" class="auth-form">
+            <p>다른 토론방에 처음 입장할 때 기본으로 사용될 닉네임입니다.</p>
+            <input type="text" id="nickname-input" placeholder="닉네임" required>
+            <div class="auth-buttons">
+                <button type="submit">저장</button>
+                <button type="button" id="back-to-main">메인으로</button>
+            </div>
+        </form>
+    </div>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+    <script src="profile.js"></script>
+</body>
+</html>
