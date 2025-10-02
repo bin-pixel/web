@@ -78,7 +78,7 @@ body {
 /* --- 토론방 페이지 스타일 --- */
 .room-container {
     height: 95vh;
-    max-width: 1200px;
+    max-width: 1400px; /* 참여자 목록 추가로 너비 확장 */
     display: flex;
     flex-direction: column;
     background: var(--surface-color);
@@ -106,6 +106,20 @@ body {
     flex-grow: 1;
     overflow: hidden;
 }
+
+/* 참여자 목록 */
+.participants-section {
+    width: 200px;
+    min-width: 180px;
+    border-right: 1px solid var(--border-color);
+    padding: 20px;
+    overflow-y: auto;
+}
+.participants-section h4 { margin: 0 0 15px 0; }
+#participants-list { list-style: none; padding: 0; margin: 0; }
+#participants-list li { padding: 5px 0; font-weight: 500; cursor: pointer; }
+#participants-list li:hover { opacity: 0.8; }
+
 
 .chat-section {
     flex-grow: 3;
@@ -158,9 +172,19 @@ body {
     resize: none;
     outline: none;
 }
-.memo-tabs { margin-bottom: 15px; }
-.memo-tabs button { background: var(--input-background); color: var(--text-primary); }
+.memo-tabs { 
+    margin-bottom: 15px;
+    display: flex;
+    gap: 5px;
+    overflow-x: auto;
+    padding-bottom: 5px;
+}
+.memo-tabs button { background: var(--input-background); color: var(--text-primary); white-space: nowrap; }
 .memo-tabs button.active { background: var(--primary-accent); color: #0d121c; }
+.memo-tabs::-webkit-scrollbar { height: 4px; }
+.memo-tabs::-webkit-scrollbar-track { background: transparent; }
+.memo-tabs::-webkit-scrollbar-thumb { background-color: var(--primary-accent); border-radius: 4px; }
+
 
 /* --- 공용 버튼 스타일 --- */
 button { 
@@ -190,3 +214,67 @@ button:disabled { background-color: #999; cursor: not-allowed; opacity: 0.7; }
     font-size: 0.9em;
     padding: 8px 12px;
 }
+
+/* --- 모달(팝업) 창 스타일 --- */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.7);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+.modal-content {
+    background-color: #1e2432;
+    padding: 30px;
+    border-radius: 12px;
+    width: 100%;
+    max-width: 500px;
+    border: 1px solid var(--border-color);
+}
+.modal-content h2 { margin-top: 0; }
+.form-group { margin-bottom: 20px; }
+.form-group label { display: block; margin-bottom: 8px; color: var(--text-secondary); }
+.form-group input[type="text"] {
+    width: 100%;
+    padding: 12px;
+    background: var(--input-background);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    color: var(--text-primary);
+    font-size: 1em;
+}
+
+#roles-list { list-style: none; padding: 0; }
+#roles-list li {
+    display: grid;
+    grid-template-columns: 40px 1fr auto;
+    grid-template-areas: 
+        "color name remove"
+        ". permissions remove";
+    align-items: center;
+    margin-bottom: 15px;
+    gap: 10px;
+}
+#roles-list input[type="color"] { grid-area: color; min-width: 40px; height: 40px; padding: 5px; border: none; background: none; }
+#roles-list input[type="text"] { grid-area: name; }
+.permissions {
+    grid-area: permissions;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    font-size: 0.85em;
+    padding-top: 5px;
+}
+.permissions label { 
+    display: flex; 
+    align-items: center; 
+    gap: 4px; 
+    cursor: pointer;
+}
+.permissions input[type="checkbox"] { width: 15px; height: 15px; }
+#roles-list button { grid-area: remove; }
