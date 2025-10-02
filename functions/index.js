@@ -9,7 +9,7 @@ admin.initializeApp();
 // 이 코드는 API 키를 직접 노출하므로 매우 위험합니다.
 // 이 프로젝트를 절대로 공개된 GitHub 리포지토리에 올리지 마세요.
 // ======================================================================
-const GEMINI_API_KEY = "AIzaSyDEUcPSazNsia3PIlJjhdA1pbrSwEUKlBo"; // 여기에 발급받은 실제 API 키를 붙여넣으세요.
+const GEMINI_API_KEY = "AIzaSyDiCGOm3BrLQOP6ZQmZW2Pz2WlLII0hHdY"; // 여기에 발급받은 실제 API 키를 붙여넣으세요.
 
 
 /**
