@@ -1,12 +1,11 @@
 const firebaseConfig = {
-    apiKey: "AIzaSyDbrsr6g0X6vKujfqBcFY0h--Rn3y1nCEI",
-    authDomain: "bin20703-edda7.firebaseapp.com",
-    databaseURL: "https://bin20703-edda7-default-rtdb.firebaseio.com",
-    projectId: "bin20703-edda7",
-    storageBucket: "bin20703-edda7.firebasestorage.app",
-    messagingSenderId: "242056223892",
-    appId: "1:242056223892:web:885b9bf54aa60ce7732881",
-    measurementId: "G-C2VDTXTVZQ"
+    apiKey: "YOUR_API_KEY",
+    authDomain: "YOUR_AUTH_DOMAIN",
+    databaseURL: "YOUR_DATABASE_URL",
+    projectId: "YOUR_PROJECT_ID",
+    storageBucket: "YOUR_STORAGE_BUCKET",
+    messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
+    appId: "YOUR_APP_ID"
 };
 
 firebase.initializeApp(firebaseConfig);
@@ -41,8 +40,13 @@ const chatChannelsList = document.getElementById('chat-channels-list');
 const typingIndicator = document.getElementById('typing-indicator');
 const voteSection = document.getElementById('vote-section');
 const inviteBtn = document.getElementById('invite-btn');
+
+// 모달 DOM
 const roomSettingsBtn = document.getElementById('room-settings-btn');
 const roomSettingsModal = document.getElementById('room-settings-modal');
+const roomSettingsForm = document.getElementById('room-settings-form');
+const settingsRolesList = document.getElementById('settings-roles-list');
+const settingsAddRoleBtn = document.getElementById('settings-add-role-btn');
 const roleAssignmentModal = document.getElementById('role-assignment-modal');
 const aiResultModal = document.getElementById('ai-result-modal');
 
@@ -524,8 +528,7 @@ leaveRoomBtn.addEventListener('click', () => {
 // 방 설정 모달 로직
 roomSettingsBtn.addEventListener('click', () => {
     const roles = currentRoomData.roles || {};
-    const list = document.getElementById('settings-roles-list');
-    list.innerHTML = '';
+    settingsRolesList.innerHTML = '';
     
     for(const roleName in roles) {
         if(roleName === '진행자') continue;
@@ -535,7 +538,7 @@ roomSettingsBtn.addEventListener('click', () => {
     roomSettingsModal.style.display = 'flex';
 });
 
-document.getElementById('settings-add-role-btn').addEventListener('click', () => {
+settingsAddRoleBtn.addEventListener('click', () => {
     addRoleInputToSettings();
 });
 
@@ -546,13 +549,70 @@ function addRoleInputToSettings(name = '', roleData = {}) {
         hasRoleSharedMemo: !!roleData.hasRoleSharedMemo,
         hasRoleChat: !!roleData.hasRoleChat
     };
-    // ... index.js의 addRoleInput 함수와 거의 동일한 로직으로 UI를 생성 ...
+    const color = roleData.color || '#ffffff';
+
+    const li = document.createElement('li');
+    
+    const colorInput = document.createElement('input');
+    colorInput.type = 'color';
+    colorInput.value = color;
+
+    const nameInput = document.createElement('input');
+    nameInput.type = 'text';
+    nameInput.placeholder = '역할 이름';
+    nameInput.value = name;
+    nameInput.required = true;
+
+    const permissionsDiv = document.createElement('div');
+    permissionsDiv.className = 'permissions';
+    permissionsDiv.innerHTML = `
+        <label title="전체 채팅에 글을 쓸 수 있습니다."><input type="checkbox" class="perm-canChat" ${permissions.canChat ? 'checked' : ''}>전체 채팅</label>
+        <label title="모두가 함께 쓰는 '공유 (전체)' 메모장을 수정할 수 있습니다."><input type="checkbox" class="perm-canWriteAllSharedMemo" ${permissions.canWriteAllSharedMemo ? 'checked' : ''}>전체 메모</label>
+        <label title="이 역할끼리만 사용하는 별도의 공유 메모장이 생성됩니다."><input type="checkbox" class="perm-hasRoleSharedMemo" ${permissions.hasRoleSharedMemo ? 'checked' : ''}>역할 메모</label>
+        <label title="이 역할끼리만 사용하는 별도의 채팅 채널이 생성됩니다."><input type="checkbox" class="perm-hasRoleChat" ${permissions.hasRoleChat ? 'checked' : ''}>역할 채팅</label>
+    `;
+
+    const removeBtn = document.createElement('button');
+    removeBtn.type = 'button';
+    removeBtn.textContent = '삭제';
+    removeBtn.onclick = () => li.remove();
+
+    li.appendChild(colorInput);
+    li.appendChild(nameInput);
+    li.appendChild(permissionsDiv);
+    li.appendChild(removeBtn);
+    settingsRolesList.appendChild(li);
 }
 
-roomSettingsModal.querySelector('form').addEventListener('submit', (e) => {
+roomSettingsForm.addEventListener('submit', (e) => {
     e.preventDefault();
-    // ... 역할 정보를 읽어서 DB의 rooms/roomId/roles 경로에 저장 ...
-    roomSettingsModal.style.display = 'none';
+    const newRoles = { ...currentRoomData.roles };
+    const roleItems = settingsRolesList.querySelectorAll('li');
+    const roleNamesOnScreen = new Set();
+
+    roleItems.forEach(item => {
+        const roleName = item.querySelector('input[type="text"]').value.trim();
+        if (roleName) {
+            roleNamesOnScreen.add(roleName);
+            newRoles[roleName] = {
+                color: item.querySelector('input[type="color"]').value,
+                canChat: item.querySelector('.perm-canChat').checked,
+                canWriteAllSharedMemo: item.querySelector('.perm-canWriteAllSharedMemo').checked,
+                hasRoleSharedMemo: item.querySelector('.perm-hasRoleSharedMemo').checked,
+                hasRoleChat: item.querySelector('.perm-hasRoleChat').checked
+            };
+        }
+    });
+
+    for (const roleName in newRoles) {
+        if(roleName !== '진행자' && !roleNamesOnScreen.has(roleName)) {
+            delete newRoles[roleName];
+        }
+    }
+
+    database.ref(`rooms/${currentRoomId}/roles`).set(newRoles)
+        .then(() => roomSettingsModal.style.display = 'none')
+        .catch(error => alert("역할 정보 저장에 실패했습니다: " + error.message));
 });
 
 roomSettingsModal.querySelectorAll('.cancel-settings-btn').forEach(btn => {
