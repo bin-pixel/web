@@ -21,7 +21,7 @@
         </main>
     </div>
 
-    <div class="modal-overlay" id="create-room-modal" style="display: none;">
+    <div class="modal-overlay" id="create-room-modal">
         <div class="modal-content">
             <h2>새 토론방 만들기</h2>
             <form id="create-room-form">
@@ -38,7 +38,7 @@
                     <label><input type="checkbox" id="is-private-checkbox"> 비공개 방 (링크로만 입장 가능)</label>
                 </div>
                 <div style="display: flex; gap: 10px; justify-content: flex-end;">
-                    <button type="button" class="cancel-btn">취소</button>
+                    <button type="button" id="cancel-create-btn">취소</button>
                     <button type="submit">만들기</button>
                 </div>
             </form>
