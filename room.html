@@ -10,6 +10,7 @@
     <div class="container room-container">
         <header class="room-header">
             <div class="header-buttons">
+                <button id="invite-btn" title="초대 링크 복사">🔗</button>
                 <button id="toggle-memo-btn">메모장</button>
                 <button id="leave-room-btn">나가기</button>
             </div>
@@ -20,22 +21,74 @@
         </header>
         <div class="main-content">
             <aside class="participants-section">
-                <h4>참여자</h4>
+                <h4>
+                    <span>참여자</span>
+                    <button id="room-settings-btn" style="display: none;" title="방 설정">⚙️</button>
+                </h4>
                 <ul id="participants-list"></ul>
+                <div id="vote-section"></div>
             </aside>
             <section class="chat-section" id="chat-section">
                 <main class="chat-window" id="chat-window"></main>
                 <footer class="chat-input-area">
-                    <input type="text" id="chat-input" placeholder="메시지를 입력하세요..." autocomplete="off">
-                    <button id="send-btn">전송</button>
+                    <div class="chat-input-wrapper">
+                        <input type="text" id="chat-input" placeholder="메시지를 입력하세요..." autocomplete="off">
+                        <button id="send-btn">전송</button>
+                    </div>
+                    <div id="typing-indicator"></div>
                 </footer>
             </section>
             <section class="memo-section" id="memo-section">
+                <nav class="chat-channels">
+                    <h5>채팅 채널</h5>
+                    <ul id="chat-channels-list"></ul>
+                </nav>
                 <div class="memo-tabs" id="memo-tabs"></div>
                 <textarea id="memo-pad" placeholder="여기에 메모를 작성하세요..."></textarea>
             </section>
         </div>
     </div>
+
+    <div class="modal-overlay" id="room-settings-modal" style="display: none;">
+        <div class="modal-content">
+            <h2>방 설정</h2>
+            <form id="room-settings-form">
+                <div class="form-group">
+                    <label>역할 목록 및 권한 설정</label>
+                    <ul id="settings-roles-list"></ul>
+                    <button type="button" id="settings-add-role-btn">+ 역할 추가</button>
+                </div>
+                <div style="display: flex; gap: 10px; justify-content: flex-end;">
+                    <button type="button" class="cancel-settings-btn">취소</button>
+                    <button type="submit">저장</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="role-assignment-modal" style="display: none;">
+        <div class="modal-content">
+            <h2 id="role-assignment-title">역할 할당</h2>
+            <form id="role-assignment-form">
+                <div class="form-group" id="role-assignment-list"></div>
+                <div style="display: flex; gap: 10px; justify-content: flex-end;">
+                    <button type="button" class="cancel-settings-btn">취소</button>
+                    <button type="submit">저장</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <div class="modal-overlay" id="ai-result-modal" style="display: none;">
+        <div class="modal-content">
+            <h2>AI 분석 결과</h2>
+            <pre id="ai-result-content" style="white-space: pre-wrap; max-height: 60vh; overflow-y: auto;"></pre>
+            <div style="text-align: right; margin-top: 20px;">
+                <button type="button" id="close-ai-result">닫기</button>
+            </div>
+        </div>
+    </div>
+
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
