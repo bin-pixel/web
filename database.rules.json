@@ -1,0 +1,67 @@
+{
+  "rules": {
+    // 사용자 정보: 본인만 수정 가능
+    "users": {
+      "$uid": {
+        ".read": "auth != null",
+        ".write": "auth.uid === $uid"
+      }
+    },
+    // 토론방 정보
+    "rooms": {
+      "$roomId": {
+        ".read": "auth != null",
+        // 방장만 방 자체의 정보를 수정/삭제할 수 있음
+        ".write": "root.child('rooms/' + $roomId + '/ownerId').val() === auth.uid",
+        
+        // 참여자 정보: 방장 또는 본인(닉네임만)이 수정 가능
+        "participants": {
+          "$uid": {
+            ".write": "root.child('rooms/' + $roomId + '/ownerId').val() === auth.uid || (auth.uid === $uid && newData.child('roles').val() === data.child('roles').val())"
+          }
+        },
+        // 투표 정보
+        "vote": {
+          // 투표자 정보: 한 번만 투표 가능
+          "voters": {
+            "$uid": {
+              ".write": "auth.uid === $uid && !data.exists()"
+            }
+          }
+        }
+      }
+    },
+    // 채팅 정보
+    "chats": {
+      "$roomId": {
+        "$channel": {
+          // 쓰기 권한은 역할 기반으로 서버에서 직접 확인
+          ".write": "root.child('rooms/' + $roomId + '/participants/' + auth.uid).exists() && (($channel === 'all' && root.child('rooms/' + $roomId + '/participants/' + auth.uid + '/roles').val().some(role => root.child('rooms/' + $roomId + '/roles/' + role + '/canChat').val() === true)) || (root.child('rooms/' + $roomId + '/participants/' + auth.uid + '/roles').val().contains($channel) && root.child('rooms/' + $roomId + '/roles/' + $channel + '/hasRoleChat').val() === true))"
+        }
+      }
+    },
+    // 메모 정보
+    "memos": {
+      "$roomId": {
+        // 개인 메모: 본인만 사용 가능
+        "personal": {
+          "$uid": {
+            ".write": "auth.uid === $uid"
+          }
+        },
+        // 공유 메모: 역할 기반 권한 확인 (채팅과 유사한 규칙 적용 가능)
+        "shared": {
+          ".write": "root.child('rooms/' + $roomId + '/participants/' + auth.uid).exists()"
+        }
+      }
+    },
+    // 타이핑 정보: 참여자 누구나 쓰기 가능
+    "typing": {
+      "$roomId": {
+        "$uid": {
+          ".write": "auth.uid === $uid"
+        }
+      }
+    }
+  }
+}
