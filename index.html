@@ -16,6 +16,28 @@
             <h2>진행중인 토론</h2>
         </main>
     </div>
+
+    <div class="modal-overlay" id="create-room-modal" style="display: none;">
+        <div class="modal-content">
+            <h2>새 토론방 만들기</h2>
+            <form id="create-room-form">
+                <div class="form-group">
+                    <label for="room-topic-input">토론 주제</label>
+                    <input type="text" id="room-topic-input" required>
+                </div>
+                <div class="form-group">
+                    <label>역할 목록 및 권한 설정</label>
+                    <ul id="roles-list"></ul>
+                    <button type="button" id="add-role-btn">+ 역할 추가</button>
+                </div>
+                <div style="display: flex; gap: 10px; justify-content: flex-end;">
+                    <button type="button" id="cancel-create-btn">취소</button>
+                    <button type="submit">만들기</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
