@@ -43,8 +43,8 @@ exports.analyzeDebateWithGemini = functions.https.onCall(async (data, context) =
     };
 
     try {
-        // ▼▼▼▼▼▼▼▼▼▼ 이 부분의 모델 이름이 수정되었습니다 ▼▼▼▼▼▼▼▼▼▼
-        const apiResponse = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.0-pro:generateContent?key=${GEMINI_API_KEY}`, {
+        // ▼▼▼▼▼▼▼▼▼▼ 요청하신 URL로 이 부분이 수정되었습니다 ▼▼▼▼▼▼▼▼▼▼
+        const apiResponse = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${GEMINI_API_KEY}`, {
         // ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -54,12 +54,11 @@ exports.analyzeDebateWithGemini = functions.https.onCall(async (data, context) =
         if (!apiResponse.ok) {
             const errorBody = await apiResponse.text();
             console.error("Gemini API Error:", errorBody);
-            throw new functions.https.HttpsError("internal", "Gemini API 호출에 실패했습니다. API 키가 유효한지, API가 활성화되었는지 확인하세요.");
+            throw new functions.https.HttpsError("internal", "Gemini API 호출에 실패했습니다. API 키, 모델 이름, API 활성화 여부를 확인하세요.");
         }
 
         const responseData = await apiResponse.json();
-
-        // Gemini API 응답 구조가 변경되었을 수 있으므로 안전하게 확인
+        
         if (!responseData.candidates || !responseData.candidates[0].content || !responseData.candidates[0].content.parts[0].text) {
              console.error("Unexpected Gemini API response structure:", responseData);
              throw new functions.https.HttpsError("internal", "AI의 응답 형식이 예상과 다릅니다.");
