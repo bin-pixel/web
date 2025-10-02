@@ -105,7 +105,23 @@ createRoomForm.addEventListener('submit', (e) => {
         const ownerNickname = snapshot.val() || currentUser.email.split('@')[0];
         const roles = {};
 
-        rolesList.querySelectorAll('li').forEach(item => {
+        const roleInputs = rolesList.querySelectorAll('li');
+        let hasDuplicate = false;
+        const roleNames = new Set();
+        roleInputs.forEach(item => {
+            const roleName = item.querySelector('input[type="text"]').value.trim();
+            if(roleNames.has(roleName)) {
+                hasDuplicate = true;
+            }
+            roleNames.add(roleName);
+        });
+
+        if (hasDuplicate) {
+            alert("중복된 역할 이름이 있습니다. 각 역할의 이름은 고유해야 합니다.");
+            return;
+        }
+
+        roleInputs.forEach(item => {
             const roleName = item.querySelector('input[type="text"]').value.trim();
             if (roleName) {
                 roles[roleName] = {
@@ -141,11 +157,13 @@ createRoomForm.addEventListener('submit', (e) => {
 });
 
 function deleteRoom(roomId, roomTopic) {
-    if (confirm(`'${roomTopic}' 방을 정말 삭제하시겠습니까?`)) {
-        database.ref('rooms/' + roomId).remove();
-        database.ref('chats/' + roomId).remove();
-        database.ref('memos/' + roomId).remove();
-        database.ref('typing/' + roomId).remove();
+    if (confirm(`'${roomTopic}' 방을 정말 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.`)) {
+        const updates = {};
+        updates[`/rooms/${roomId}`] = null;
+        updates[`/chats/${roomId}`] = null;
+        updates[`/memos/${roomId}`] = null;
+        updates[`/typing/${roomId}`] = null;
+        database.ref().update(updates);
     }
 }
 
