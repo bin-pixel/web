@@ -52,17 +52,17 @@ const roleAssignmentModal = document.getElementById('role-assignment-modal');
 const aiResultModal = document.getElementById('ai-result-modal');
 
 document.addEventListener('DOMContentLoaded', () => {
-    const memoState = localStorage.getItem(`memoState_${currentRoomId}`);
-    if (memoState === 'hidden') {
-        memoSection.classList.add('hidden');
-        chatSection.classList.add('full-width');
-    }
-    
     const urlParams = new URLSearchParams(window.location.search);
     currentRoomId = urlParams.get('id');
     if (!currentRoomId) {
         roomTopicElement.textContent = "오류: 방 ID를 찾을 수 없습니다.";
         return;
+    }
+    
+    const memoState = localStorage.getItem(`memoState_${currentRoomId}`);
+    if (memoState === 'hidden') {
+        memoSection.classList.add('hidden');
+        chatSection.classList.add('full-width');
     }
 
     auth.onAuthStateChanged((user) => {
@@ -619,4 +619,3 @@ roomSettingsForm.addEventListener('submit', (e) => {
 roomSettingsModal.querySelectorAll('.cancel-settings-btn').forEach(btn => {
     btn.onclick = () => roomSettingsModal.style.display = 'none';
 });
-
