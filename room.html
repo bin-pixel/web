@@ -19,6 +19,10 @@
             <div id="owner-controls"></div>
         </header>
         <div class="main-content">
+            <aside class="participants-section">
+                <h4>참여자</h4>
+                <ul id="participants-list"></ul>
+            </aside>
             <section class="chat-section" id="chat-section">
                 <main class="chat-window" id="chat-window"></main>
                 <footer class="chat-input-area">
@@ -27,10 +31,7 @@
                 </footer>
             </section>
             <section class="memo-section" id="memo-section">
-                <div class="memo-tabs">
-                    <button id="personal-memo-btn" class="active">개인 메모</button>
-                    <button id="shared-memo-btn">공유 메모</button>
-                </div>
+                <div class="memo-tabs" id="memo-tabs"></div>
                 <textarea id="memo-pad" placeholder="여기에 메모를 작성하세요..."></textarea>
             </section>
         </div>
