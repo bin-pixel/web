@@ -1,11 +1,12 @@
 const firebaseConfig = {
-    apiKey: "YOUR_API_KEY",
-    authDomain: "YOUR_AUTH_DOMAIN",
-    databaseURL: "YOUR_DATABASE_URL",
-    projectId: "YOUR_PROJECT_ID",
-    storageBucket: "YOUR_STORAGE_BUCKET",
-    messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
-    appId: "YOUR_APP_ID"
+    apiKey: "AIzaSyDbrsr6g0X6vKujfqBcFY0h--Rn3y1nCEI",
+    authDomain: "bin20703-edda7.firebaseapp.com",
+    databaseURL: "https://bin20703-edda7-default-rtdb.firebaseio.com",
+    projectId: "bin20703-edda7",
+    storageBucket: "bin20703-edda7.firebasestorage.app",
+    messagingSenderId: "242056223892",
+    appId: "1:242056223892:web:885b9bf54aa60ce7732881",
+    measurementId: "G-C2VDTXTVZQ"
 };
 
 firebase.initializeApp(firebaseConfig);
@@ -618,3 +619,4 @@ roomSettingsForm.addEventListener('submit', (e) => {
 roomSettingsModal.querySelectorAll('.cancel-settings-btn').forEach(btn => {
     btn.onclick = () => roomSettingsModal.style.display = 'none';
 });
+
