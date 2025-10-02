@@ -1,6 +1,3 @@
-// =================================================================
-// 1. FIREBASE CONFIGURATION
-// =================================================================
 const firebaseConfig = {
     apiKey: "AIzaSyDbrsr6g0X6vKujfqBcFY0h--Rn3y1nCEI",
     authDomain: "bin20703-edda7.firebaseapp.com",
@@ -12,30 +9,28 @@ const firebaseConfig = {
     measurementId: "G-C2VDTXTVZQ"
 };
 
-// =================================================================
-// 2. DOM ELEMENTS & INITIALIZATION
-// =================================================================
 const createRoomBtn = document.getElementById('create-room-btn');
 const roomListElement = document.getElementById('room-list');
 const headerElement = document.querySelector('.header');
+const createRoomModal = document.getElementById('create-room-modal');
+const createRoomForm = document.getElementById('create-room-form');
+const roomTopicInput = document.getElementById('room-topic-input');
+const rolesList = document.getElementById('roles-list');
+const addRoleBtn = document.getElementById('add-role-btn');
+const cancelCreateBtn = document.getElementById('cancel-create-btn');
 
 firebase.initializeApp(firebaseConfig);
 const database = firebase.database();
 const auth = firebase.auth();
 let currentUser = null; 
 
-// =================================================================
-// 3. AUTHENTICATION
-// =================================================================
 auth.onAuthStateChanged((user) => {
     if (user) {
         currentUser = user;
-        console.log('로그인 상태:', currentUser.email);
         createRoomBtn.disabled = false;
         loadRooms();
         addLogoutButton();
     } else {
-        console.log('로그아웃 상태 또는 로그인 필요');
         window.location.href = 'login.html';
     }
 });
@@ -49,22 +44,93 @@ function addLogoutButton() {
     headerElement.appendChild(logoutBtn);
 }
 
-// =================================================================
-// 4. ROOM MANAGEMENT FUNCTIONS
-// =================================================================
 createRoomBtn.addEventListener('click', () => {
-    const topic = prompt("새 토론방의 주제를 입력하세요:");
-    const ownerNickname = currentUser.email.split('@')[0];
+    rolesList.innerHTML = '';
+    addRoleInput('찬성측', '#4a90e2', { canChat: true, canWriteAllSharedMemo: true, hasRoleSharedMemo: true });
+    addRoleInput('반대측', '#f5a623', { canChat: true, canWriteAllSharedMemo: true, hasRoleSharedMemo: true });
+    addRoleInput('관전자', '#888888', { canChat: false, canWriteAllSharedMemo: false, hasRoleSharedMemo: false });
+    createRoomModal.style.display = 'flex';
+});
 
-    if (topic && topic.trim() !== '') {
+cancelCreateBtn.addEventListener('click', () => {
+    createRoomModal.style.display = 'none';
+});
+
+addRoleBtn.addEventListener('click', () => {
+    addRoleInput();
+});
+
+function addRoleInput(name = '', color = '#ffffff', permissions = { canChat: true, canWriteAllSharedMemo: false, hasRoleSharedMemo: false }) {
+    const li = document.createElement('li');
+    
+    const colorInput = document.createElement('input');
+    colorInput.type = 'color';
+    colorInput.value = color;
+
+    const nameInput = document.createElement('input');
+    nameInput.type = 'text';
+    nameInput.placeholder = '역할 이름';
+    nameInput.value = name;
+    nameInput.required = true;
+
+    const permissionsDiv = document.createElement('div');
+    permissionsDiv.className = 'permissions';
+    permissionsDiv.innerHTML = `
+        <label title="전체 채팅에 글을 쓸 수 있습니다."><input type="checkbox" class="perm-canChat" ${permissions.canChat ? 'checked' : ''}>채팅</label>
+        <label title="모두가 함께 쓰는 '공유 (전체)' 메모장을 수정할 수 있습니다."><input type="checkbox" class="perm-canWriteAllSharedMemo" ${permissions.canWriteAllSharedMemo ? 'checked' : ''}>전체 메모</label>
+        <label title="이 역할끼리만 사용하는 별도의 공유 메모장이 생성됩니다."><input type="checkbox" class="perm-hasRoleSharedMemo" ${permissions.hasRoleSharedMemo ? 'checked' : ''}>역할 메모</label>
+    `;
+
+    const removeBtn = document.createElement('button');
+    removeBtn.type = 'button';
+    removeBtn.textContent = '삭제';
+    removeBtn.onclick = () => li.remove();
+
+    li.appendChild(colorInput);
+    li.appendChild(nameInput);
+    li.appendChild(permissionsDiv);
+    li.appendChild(removeBtn);
+    rolesList.appendChild(li);
+}
+
+createRoomForm.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const topic = roomTopicInput.value.trim();
+    const ownerNickname = currentUser.email.split('@')[0];
+    const roles = {};
+
+    rolesList.querySelectorAll('li').forEach(item => {
+        const roleName = item.querySelector('input[type="text"]').value.trim();
+        if (roleName) {
+            roles[roleName] = {
+                color: item.querySelector('input[type="color"]').value,
+                canChat: item.querySelector('.perm-canChat').checked,
+                canWriteAllSharedMemo: item.querySelector('.perm-canWriteAllSharedMemo').checked,
+                hasRoleSharedMemo: item.querySelector('.perm-hasRoleSharedMemo').checked
+            };
+        }
+    });
+
+    if (topic && Object.keys(roles).length > 0) {
+        roles['진행자'] = { color: '#aa88ff', canChat: true, canWriteAllSharedMemo: true, hasRoleSharedMemo: false, isOwner: true };
+
         database.ref('rooms').push({
-            topic: topic,
-            ownerId: currentUser.uid, 
-            ownerNickname: ownerNickname,
-            createdAt: new Date().toISOString()
+            topic,
+            ownerId: currentUser.uid,
+            ownerNickname,
+            createdAt: new Date().toISOString(),
+            roles,
+            participants: {
+                [currentUser.uid]: {
+                    nickname: ownerNickname,
+                    roles: ['진행자']
+                }
+            }
         });
-    } else if (topic !== null) {
-        alert("토론 주제를 입력해야 합니다.");
+        createRoomModal.style.display = 'none';
+        createRoomForm.reset();
+    } else {
+        alert("주제와 하나 이상의 역할을 입력해야 합니다.");
     }
 });
 
@@ -74,9 +140,6 @@ function deleteRoom(roomId, roomTopic) {
     }
 }
 
-// =================================================================
-// 5. DATA READING (DISPLAY ROOMS)
-// =================================================================
 function loadRooms() {
     const roomsRef = database.ref('rooms');
     roomsRef.on('value', (snapshot) => {
