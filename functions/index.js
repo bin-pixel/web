@@ -9,7 +9,10 @@ admin.initializeApp();
 // 이 코드는 API 키를 직접 노출하므로 매우 위험합니다.
 // 이 프로젝트를 절대로 공개된 GitHub 리포지토리에 올리지 마세요.
 // ======================================================================
-const GEMINI_API_KEY = "AIzaSyDiCGOm3BrLQOP6ZQmZW2Pz2WlLII0hHdY"; // 여기에 발급받은 실제 API 키를 붙여넣으세요.
+
+// ▼▼▼▼▼▼▼▼▼▼ 이 부분을 당신의 실제 API 키로 교체하세요 ▼▼▼▼▼▼▼▼▼▼
+const GEMINI_API_KEY = "AIzaSyDiCGOm3BrLQOP6ZQmZW2Pz2WlLII0hHdY";
+// ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲
 
 
 /**
@@ -17,7 +20,7 @@ const GEMINI_API_KEY = "AIzaSyDiCGOm3BrLQOP6ZQmZW2Pz2WlLII0hHdY"; // 여기에 �
  */
 exports.analyzeDebateWithGemini = functions.https.onCall(async (data, context) => {
     // API 키가 설정되었는지 확인
-    if (!GEMINI_API_KEY || GEMINI_API_KEY === "YOUR_API_KEY") {
+    if (!GEMINI_API_KEY || GEMINI_API_KEY === "여기에_당신의_실제_API_키를_붙여넣으세요") {
         throw new functions.https.HttpsError(
             "failed-precondition", 
             "Gemini API 키가 functions/index.js 파일에 설정되지 않았습니다."
@@ -53,7 +56,7 @@ exports.analyzeDebateWithGemini = functions.https.onCall(async (data, context) =
         if (!apiResponse.ok) {
             const errorBody = await apiResponse.text();
             console.error("Gemini API Error:", errorBody);
-            throw new functions.https.HttpsError("internal", "Gemini API 호출에 실패했습니다.");
+            throw new functions.https.HttpsError("internal", "Gemini API 호출에 실패했습니다. API 키가 유효한지, API가 활성화되었는지 확인하세요.");
         }
 
         const responseData = await apiResponse.json();
