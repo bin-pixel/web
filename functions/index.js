@@ -9,10 +9,7 @@ admin.initializeApp();
 // 이 코드는 API 키를 직접 노출하므로 매우 위험합니다.
 // 이 프로젝트를 절대로 공개된 GitHub 리포지토리에 올리지 마세요.
 // ======================================================================
-
-// ▼▼▼▼▼▼▼▼▼▼ 이 부분을 당신의 실제 API 키로 교체하세요 ▼▼▼▼▼▼▼▼▼▼
 const GEMINI_API_KEY = "AIzaSyDiCGOm3BrLQOP6ZQmZW2Pz2WlLII0hHdY";
-// ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲
 
 
 /**
@@ -46,8 +43,9 @@ exports.analyzeDebateWithGemini = functions.https.onCall(async (data, context) =
     };
 
     try {
-        // Gemini API 호출
-        const apiResponse = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${GEMINI_API_KEY}`, {
+        // ▼▼▼▼▼▼▼▼▼▼ 이 부분의 모델 이름이 수정되었습니다 ▼▼▼▼▼▼▼▼▼▼
+        const apiResponse = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.0-pro:generateContent?key=${GEMINI_API_KEY}`, {
+        // ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(requestBody)
@@ -60,6 +58,13 @@ exports.analyzeDebateWithGemini = functions.https.onCall(async (data, context) =
         }
 
         const responseData = await apiResponse.json();
+
+        // Gemini API 응답 구조가 변경되었을 수 있으므로 안전하게 확인
+        if (!responseData.candidates || !responseData.candidates[0].content || !responseData.candidates[0].content.parts[0].text) {
+             console.error("Unexpected Gemini API response structure:", responseData);
+             throw new functions.https.HttpsError("internal", "AI의 응답 형식이 예상과 다릅니다.");
+        }
+
         const summary = responseData.candidates[0].content.parts[0].text;
         
         return { summary: summary };
