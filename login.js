@@ -46,7 +46,6 @@ signupBtn.addEventListener('click', () => {
     auth.createUserWithEmailAndPassword(email, password)
         .then((userCredential) => {
             console.log('회원가입 성공:', userCredential.user);
-            // 사용자 정보 DB에 기본값 저장 (선택사항)
             database.ref('users/' + userCredential.user.uid).set({
                 email: userCredential.user.email,
                 nickname: userCredential.user.email.split('@')[0],
