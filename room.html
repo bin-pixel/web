@@ -41,7 +41,7 @@
             <section class="chat-section" id="chat-section">
                 <main class="chat-window" id="chat-window"></main>
                 <footer class="chat-input-area">
-                    
+
                     <div id="reply-preview-bar">
                         <div id="reply-preview-content">
                             Replying to <strong>...</strong>
@@ -49,6 +49,7 @@
                         </div>
                         <button id="cancel-reply-btn">X</button>
                     </div>
+
                     <div class="chat-input-wrapper">
                         <input type="text" id="chat-input" placeholder="메시지를 입력하세요..." autocomplete="off">
                         <button id="send-btn">전송</button>
@@ -91,7 +92,6 @@
                 <div class="form-group" id="role-assignment-list"></div>
                 <div class="modal-footer space-between">
                     <button type="button" id="kick-user-btn" class="btn-danger" style="display: none;">이 사용자 강퇴</button>
-                    
                     <div>
                         <button type="button" class="cancel-settings-btn">취소</button>
                         <button type="submit">저장</button>
@@ -117,6 +117,14 @@
         </div>
     </div>
 
+    <div id="emoji-picker-container" class="emoji-picker">
+        <span onclick="handleReaction(this.textContent)">👍</span>
+        <span onclick="handleReaction(this.textContent)">👎</span>
+        <span onclick="handleReaction(this.textContent)">😂</span>
+        <span onclick="handleReaction(this.textContent)">😮</span>
+        <span onclick="handleReaction(this.textContent)">🤔</span>
+        <span onclick="handleReaction(this.textContent)">🔥</span>
+    </div>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
