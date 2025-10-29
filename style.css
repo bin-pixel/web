@@ -24,13 +24,13 @@ body {
 }
 
 /* --- 공용 스타일 --- */
-.container { 
-    width: 100%; 
-    max-width: 800px; 
-    margin: 0 auto; 
+.container {
+    width: 100%;
+    max-width: 800px;
+    margin: 0 auto;
     padding: 0 10px;
 }
-button { 
+button {
     cursor: pointer; border: none; border-radius: 6px;
     background-color: var(--primary-accent); color: #0d121c;
     font-size: 1em; font-weight: 500;
@@ -49,11 +49,11 @@ button:disabled { background-color: #999; cursor: not-allowed; opacity: 0.7; }
 /* --- 로그인 / 프로필 페이지 --- */
 .auth-container {
     width: 100%;
-    max-width: 400px; 
-    margin: 50px auto; 
+    max-width: 400px;
+    margin: 50px auto;
     padding: 20px;
-    background-color: var(--surface-color); 
-    border-radius: 12px; 
+    background-color: var(--surface-color);
+    border-radius: 12px;
     border: 1px solid var(--border-color);
 }
 .auth-container h2 { text-align: center; margin-bottom: 25px; }
@@ -65,18 +65,18 @@ button:disabled { background-color: #999; cursor: not-allowed; opacity: 0.7; }
 .auth-buttons button { flex-grow: 1; margin-left: 0; }
 
 /* --- 메인 페이지 --- */
-.header { 
-    border-bottom: 2px solid var(--border-color); padding-bottom: 15px; margin-bottom: 25px; 
+.header {
+    border-bottom: 2px solid var(--border-color); padding-bottom: 15px; margin-bottom: 25px;
     display: flex; flex-wrap: wrap;
-    justify-content: space-between; 
+    justify-content: space-between;
     align-items: center;
     gap: 15px;
 }
 .header h1 { margin: 0; font-size: 1.8em; }
 .header-controls { display: flex; gap: 10px; align-items: center; width: 100%; justify-content: flex-end; }
-.room-card { 
-    background-color: var(--surface-color); border: 1px solid var(--border-color); 
-    padding: 20px; margin-bottom: 15px; border-radius: 8px; 
+.room-card {
+    background-color: var(--surface-color); border: 1px solid var(--border-color);
+    padding: 20px; margin-bottom: 15px; border-radius: 8px;
     display: flex; flex-direction: column;
     gap: 15px;
 }
@@ -96,18 +96,18 @@ button:disabled { background-color: #999; cursor: not-allowed; opacity: 0.7; }
 
 /* --- 토론방 페이지 --- */
 .room-container {
-    height: calc(100vh - 20px); 
-    max-width: 1400px; 
+    height: calc(100vh - 20px);
+    max-width: 1400px;
     display: flex; flex-direction: column;
     background: var(--surface-color); border-radius: 12px; border: 1px solid var(--border-color);
-    backdrop-filter: blur(10px); 
+    backdrop-filter: blur(10px);
     overflow: hidden;
     position: relative;
 }
-.room-header { 
-    padding: 15px 20px; 
-    border-bottom: 1px solid var(--border-color); 
-    position: relative; 
+.room-header {
+    padding: 15px 20px;
+    border-bottom: 1px solid var(--border-color);
+    position: relative;
     z-index: 5;
 }
 .room-header h1 { margin: 0; font-size: 1.3em; }
@@ -141,7 +141,7 @@ button:disabled { background-color: #999; cursor: not-allowed; opacity: 0.7; }
 
 /* 결론 요약 창 */
 .conclusion-summary-box {
-    background-color: rgba(129, 201, 149, 0.1); 
+    background-color: rgba(129, 201, 149, 0.1);
     border-bottom: 1px solid var(--success-color);
     border-top: 1px solid var(--success-color);
     padding: 15px 20px;
@@ -165,15 +165,15 @@ button:disabled { background-color: #999; cursor: not-allowed; opacity: 0.7; }
 .participants-section {
     width: 200px; min-width: 180px; border-right: 1px solid var(--border-color);
     padding: 20px; overflow-y: auto; display: flex; flex-direction: column;
-    background-color: var(--surface-color); 
+    background-color: var(--surface-color);
 }
-.participants-section h4 { 
-    margin: 0 0 15px 0; display: flex; justify-content: space-between; align-items: center; 
+.participants-section h4 {
+    margin: 0 0 15px 0; display: flex; justify-content: space-between; align-items: center;
 }
 #room-settings-btn { padding: 4px 8px; font-size: 0.8em; background-color: var(--input-background); }
 #participants-list { list-style: none; padding: 0; margin: 0; }
-#participants-list li { 
-    padding: 8px 5px; border-radius: 4px; margin-bottom: 5px; 
+#participants-list li {
+    padding: 8px 5px; border-radius: 4px; margin-bottom: 5px;
     display: flex; flex-direction: column;
 }
 #participants-list li:hover { background-color: rgba(255, 255, 255, 0.05); }
@@ -240,11 +240,11 @@ button:disabled { background-color: #999; cursor: not-allowed; opacity: 0.7; }
 .modal-content h2 { margin-top: 0; }
 .modal-content .form-group {
     flex-grow: 1;
-    overflow-y: auto; 
+    overflow-y: auto;
 }
 .form-group label { display: block; margin-bottom: 8px; color: var(--text-secondary); }
 .form-group input[type="text"] { width: 100%; padding: 12px; background: var(--input-background); border: 1px solid var(--border-color); border-radius: 8px; color: var(--text-primary); font-size: 1em; }
-.form-group textarea { 
+.form-group textarea {
     width: 100%; resize: vertical; min-height: 150px;
     background: var(--input-background); border: 1px solid var(--border-color);
     border-radius: 8px; color: var(--text-primary); font-size: 1em; padding: 12px;
@@ -265,8 +265,8 @@ button:disabled { background-color: #999; cursor: not-allowed; opacity: 0.7; }
 .permissions input[type="checkbox"] { width: 15px; height: 15px; }
 #roles-list button, #settings-roles-list button { grid-area: remove; }
 #role-assignment-list label { display: block; margin-bottom: 8px; cursor: pointer; }
-.modal-footer { 
-    display: flex; gap: 10px; justify-content: flex-end; 
+.modal-footer {
+    display: flex; gap: 10px; justify-content: flex-end;
     margin-top: 20px; flex-shrink: 0;
 }
 .modal-footer.space-between { justify-content: space-between; }
@@ -275,7 +275,7 @@ button:disabled { background-color: #999; cursor: not-allowed; opacity: 0.7; }
 @media (max-width: 768px) {
     body { padding: 0; }
     .container { padding: 0; }
-    
+
     .header { gap: 10px; }
     .header h1 { font-size: 1.5em; width: 100%; text-align: center; }
     .header-controls { width: 100%; justify-content: center; }
@@ -285,12 +285,12 @@ button:disabled { background-color: #999; cursor: not-allowed; opacity: 0.7; }
 
     .room-container { border-radius: 0; height: 100vh; }
     .header-buttons { display: none; }
-    .mobile-toggle-btns { 
-        display: flex; 
-        gap: 10px; 
-        position: absolute; 
-        top: 15px; 
-        right: 15px; 
+    .mobile-toggle-btns {
+        display: flex;
+        gap: 10px;
+        position: absolute;
+        top: 15px;
+        right: 15px;
     }
     .mobile-toggle-btns button {
         padding: 8px;
@@ -304,7 +304,7 @@ button:disabled { background-color: #999; cursor: not-allowed; opacity: 0.7; }
         padding-top: 10px;
         border-top: 1px solid var(--border-color);
     }
-    
+
     .participants-section, .memo-section {
         position: absolute;
         top: 0;
@@ -324,7 +324,7 @@ button:disabled { background-color: #999; cursor: not-allowed; opacity: 0.7; }
         width: 80%;
         transform: translateX(100%);
     }
-    
+
     .room-container.show-participants .participants-section {
         transform: translateX(0);
     }
@@ -332,10 +332,10 @@ button:disabled { background-color: #999; cursor: not-allowed; opacity: 0.7; }
         transform: translateX(0);
     }
     .chat-section.full-width { flex-grow: 1; }
-    
+
     .chat-window { padding: 15px; }
     .chat-input-area { padding: 10px; }
-    
+
     .modal-content {
         width: 95%;
         padding: 20px;
@@ -348,10 +348,11 @@ button:disabled { background-color: #999; cursor: not-allowed; opacity: 0.7; }
     .permissions { padding-top: 10px; }
 }
 
-/* --- [NEW] 답장 기능용 스타일 --- */
+/* --- 답장 기능용 스타일 --- */
 .chat-message {
-    position: relative; 
-    padding-right: 40px; /* 답장 버튼 공간 확보 */
+    position: relative;
+    padding-right: 70px; /* 답장+반응 버튼 공간 확보 */
+    padding-bottom: 25px; /* 반응 표시 공간 확보 */
 }
 .reply-btn {
     position: absolute;
@@ -431,4 +432,83 @@ button:disabled { background-color: #999; cursor: not-allowed; opacity: 0.7; }
     font-size: 1.2em;
     padding: 0 5px;
     margin-left: 10px;
+}
+
+/* --- [NEW] 메시지 반응 기능용 스타일 --- */
+/* 반응 추가 버튼 (답장 버튼 옆) */
+.add-reaction-btn {
+    position: absolute;
+    top: 5px;
+    right: 40px; /* 답장 버튼 옆 */
+    font-size: 1.1em;
+    cursor: pointer;
+    opacity: 0;
+    transition: opacity 0.2s;
+    padding: 2px 5px;
+    background: rgba(255,255,255,0.1);
+    border-radius: 4px;
+    color: var(--text-primary);
+    border: none;
+    margin: 0;
+}
+.chat-message:hover .add-reaction-btn {
+    opacity: 1;
+}
+.my-message .add-reaction-btn {
+    background: rgba(0,0,0,0.1);
+    color: #0d121c;
+}
+
+/* 이모지 선택 팝오버 (기본 숨김) */
+.emoji-picker {
+    position: absolute;
+    background-color: var(--input-background);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 10px;
+    display: none; /* JS로 제어 */
+    z-index: 20;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+    right: 5px;
+    bottom: 30px; /* 메시지 하단 기준 */
+}
+.emoji-picker span {
+    font-size: 1.5em;
+    cursor: pointer;
+    margin: 0 5px;
+    transition: transform 0.1s;
+}
+.emoji-picker span:hover {
+    transform: scale(1.2);
+}
+
+/* 반응 결과 표시 (메시지 하단) */
+.reactions-display {
+    position: absolute;
+    bottom: 5px;
+    left: 10px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+}
+.reaction-tag {
+    background-color: var(--input-background);
+    border: 1px solid var(--border-color);
+    border-radius: 10px;
+    padding: 2px 8px;
+    font-size: 0.8em;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+.reaction-tag:hover {
+    filter: brightness(1.2);
+}
+.reaction-tag.my-reaction { /* 내가 반응한 경우 */
+    background-color: var(--primary-accent);
+    color: #0d121c;
+    border-color: var(--primary-accent);
+}
+.reaction-tag .count {
+    margin-left: 3px;
+    font-weight: bold;
 }
