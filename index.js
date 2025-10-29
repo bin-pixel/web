@@ -9,8 +9,9 @@ const firebaseConfig = {
     measurementId: "G-C2VDTXTVZQ"
 };
 
-const createRoomBtn = document.getElementById('create-room-btn');
 const roomListElement = document.getElementById('room-list');
+const concludedRoomListElement = document.getElementById('concluded-room-list'); // 새로 추가
+const createRoomBtn = document.getElementById('create-room-btn');
 const profileBtn = document.getElementById('profile-btn');
 const logoutBtn = document.getElementById('logout-btn');
 
@@ -146,7 +147,9 @@ createRoomForm.addEventListener('submit', (e) => {
                 roles,
                 participants: {
                     [currentUser.uid]: { nickname: ownerNickname, roles: ['진행자'] }
-                }
+                },
+                isConcluded: false, // 결론 상태 추가
+                conclusion: "" // 결론 요약 추가
             });
             createRoomModal.style.display = 'none';
             createRoomForm.reset();
@@ -167,20 +170,23 @@ function deleteRoom(roomId, roomTopic) {
     }
 }
 
+// *** 'loadRooms' 함수가 수정되었습니다 ***
 function loadRooms() {
     const roomsRef = database.ref('rooms');
     roomsRef.on('value', (snapshot) => {
         const rooms = snapshot.val();
-        roomListElement.innerHTML = '<h2>진행중인 토론</h2>';
+        roomListElement.innerHTML = ''; // 진행중 리스트 초기화
+        concludedRoomListElement.innerHTML = ''; // 결론난 리스트 초기화
 
         if (rooms) {
-            let hasRooms = false;
+            let hasActiveRooms = false;
+            let hasConcludedRooms = false;
+
             for (const roomId in rooms) {
                 const room = rooms[roomId];
                 if (!room || typeof room !== 'object') continue;
                 if (room.isPrivate) continue;
 
-                hasRooms = true;
                 const topic = room.topic || '이름 없는 토론방';
                 const ownerNickname = room.ownerNickname || '알 수 없음';
                 
@@ -191,10 +197,19 @@ function loadRooms() {
                 infoDiv.className = 'room-card-info';
                 infoDiv.innerHTML = `<h3>${topic}</h3><p>진행자: ${ownerNickname}</p>`;
 
+                // 결론 요약이 있으면 표시 (새로 추가)
+                if (room.isConcluded && room.conclusion) {
+                    const conclusionPreview = document.createElement('p');
+                    conclusionPreview.className = 'conclusion-preview';
+                    conclusionPreview.textContent = `결론: ${room.conclusion.substring(0, 50)}...`;
+                    infoDiv.appendChild(conclusionPreview);
+                }
+
                 const buttonsDiv = document.createElement('div');
                 buttonsDiv.className = 'room-card-buttons';
                 const enterButton = document.createElement('button');
-                enterButton.textContent = '입장하기';
+                // 결론난 방은 '입장하기'가 아닌 '결과보기'로 표시
+                enterButton.textContent = room.isConcluded ? '결과보기' : '입장하기';
                 enterButton.onclick = () => { window.location.href = `room.html?id=${roomId}`; };
                 buttonsDiv.appendChild(enterButton);
 
@@ -202,19 +217,34 @@ function loadRooms() {
                     const deleteButton = document.createElement('button');
                     deleteButton.className = 'delete-btn';
                     deleteButton.textContent = '삭제';
-                    deleteButton.onclick = () => deleteRoom(roomId, topic);
+                    deleteButton.onclick = (e) => {
+                        e.stopPropagation(); // 카드 클릭 방지
+                        deleteRoom(roomId, topic);
+                    };
                     buttonsDiv.appendChild(deleteButton);
                 }
                 
                 roomCard.appendChild(infoDiv);
                 roomCard.appendChild(buttonsDiv);
-                roomListElement.appendChild(roomCard);
+                
+                // 상태에 따라 다른 리스트에 추가
+                if (room.isConcluded) {
+                    concludedRoomListElement.appendChild(roomCard);
+                    hasConcludedRooms = true;
+                } else {
+                    roomListElement.appendChild(roomCard);
+                    hasActiveRooms = true;
+                }
             }
-            if (!hasRooms) {
-                roomListElement.innerHTML += '<p>진행중인 공개 토론이 없습니다.</p>';
+            if (!hasActiveRooms) {
+                roomListElement.innerHTML = '<p>진행중인 공개 토론이 없습니다.</p>';
+            }
+            if (!hasConcludedRooms) {
+                concludedRoomListElement.innerHTML = '<p>결론이 난 토론이 없습니다.</p>';
             }
         } else {
-            roomListElement.innerHTML += '<p>진행중인 토론이 없습니다.</p>';
+            roomListElement.innerHTML = '<p>진행중인 토론이 없습니다.</p>';
+            concludedRoomListElement.innerHTML = '<p>결론이 난 토론이 없습니다.</p>';
         }
     });
 }
