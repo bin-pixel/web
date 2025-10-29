@@ -3,13 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>토론의 장</title>
+    <title>토론, 논쟁의 장</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <div class="container">
         <header class="header">
-            <h1>토론의 장 🚀</h1>
+            <h1>토론, 논쟁의 장 🚀</h1>
             <div class="header-controls">
                 <button id="profile-btn">프로필</button>
                 <button id="create-room-btn" disabled>새 토론방 만들기</button>
@@ -17,20 +17,20 @@
             </div>
         </header>
         <main>
-            <h2>진행중인 토론</h2>
+            <h2>진행중인 토론 혹은 논쟁</h2>
             <div id="room-list"></div>
 
-            <h2 style="margin-top: 40px;">결론이 난 토론</h2>
+            <h2 style="margin-top: 40px;">결론이 난 토론 혹은 논쟁</h2>
             <div id="concluded-room-list"></div>
         </main>
     </div>
 
     <div class="modal-overlay" id="create-room-modal">
         <div class="modal-content">
-            <h2>새 토론방 만들기</h2>
+            <h2>새 방 만들기</h2>
             <form id="create-room-form">
                 <div class="form-group">
-                    <label for="room-topic-input">토론 주제</label>
+                    <label for="room-topic-input">주제</label>
                     <input type="text" id="room-topic-input" required>
                 </div>
                 <div class="form-group">
@@ -55,3 +55,4 @@
     <script src="index.js"></script>
 </body>
 </html>
+
