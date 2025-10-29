@@ -22,6 +22,7 @@ let activeMemoPath = '';
 let memoTimeout;
 let activeChatChannel = 'all';
 let typingTimeout;
+let currentReplyTo = null; // *** [NEW] 답장 상태를 저장할 변수 ***
 
 // DOM Elements
 const roomContainer = document.getElementById('room-container');
@@ -58,12 +59,17 @@ const settingsAddRoleBtn = document.getElementById('settings-add-role-btn');
 const roleAssignmentModal = document.getElementById('role-assignment-modal');
 const kickUserBtn = document.getElementById('kick-user-btn');
 
-// 결론 기능 DOM (새로 추가)
+// 결론 기능 DOM
 const conclusionModal = document.getElementById('conclusion-modal');
 const conclusionForm = document.getElementById('conclusion-form');
 const conclusionTextarea = document.getElementById('conclusion-textarea');
 const conclusionSummaryBox = document.getElementById('conclusion-summary-box');
 const conclusionSummaryText = document.getElementById('conclusion-summary-text');
+
+// *** [NEW] 답장 미리보기 DOM ***
+const replyPreviewBar = document.getElementById('reply-preview-bar');
+const replyPreviewContent = document.getElementById('reply-preview-content');
+const cancelReplyBtn = document.getElementById('cancel-reply-btn');
 
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -101,6 +107,9 @@ document.addEventListener('DOMContentLoaded', () => {
         btn.onclick = () => conclusionModal.style.display = 'none';
     });
     conclusionForm.addEventListener('submit', handleConclusionSubmit);
+
+    // *** [NEW] 답장 취소 이벤트 ***
+    cancelReplyBtn.addEventListener('click', cancelReplyMode);
 });
 
 function joinRoom() {
@@ -177,6 +186,7 @@ function loadRoomAndUserInfo() {
                 chatInputElement.disabled = true;
                 memoPadElement.placeholder = '결론이 난 토론입니다.';
                 memoPadElement.disabled = true;
+                cancelReplyMode(); // 답장 모드 강제 해제
             }
 
         } else {
@@ -184,7 +194,6 @@ function loadRoomAndUserInfo() {
         }
     });
 
-    // (타이핑 리스너는 변경 없음)
     const typingRef = database.ref(`typing/${currentRoomId}`);
     typingRef.on('value', snapshot => {
         const typingUsers = snapshot.val() || {};
@@ -227,7 +236,6 @@ function updateNicknameDisplay(nickname) {
             }
         }
     });
-    // 결론난 방이면 닉네임 변경 버튼 비활성화
     if (currentRoomData.isConcluded) {
         changeBtn.disabled = true;
     }
@@ -267,7 +275,6 @@ function renderParticipants(participants) {
         li.appendChild(nameSpan);
         li.appendChild(rolesDiv);
         
-        // 결론나지 않았을 때만 역할 할당/강퇴 가능
         if (isOwner && !currentRoomData.isConcluded) {
             li.onclick = () => showRoleAssignmentModal(uid, user.nickname, user.roles);
         }
@@ -354,7 +361,7 @@ function renderVoteSection(voteData) {
             const hasVoted = voteData.voters && voteData.voters[currentUser.uid];
             const button = document.createElement('button');
             button.textContent = option;
-            button.disabled = hasVoted || isConcluded; // 결론나면 비활성화
+            button.disabled = hasVoted || isConcluded;
             button.onclick = () => castVote(option);
             optionsDiv.appendChild(button);
 
@@ -365,13 +372,13 @@ function renderVoteSection(voteData) {
         }
         voteSection.appendChild(optionsDiv);
         
-        if (isOwner && !isConcluded) { // 결론나면 종료 버튼 숨김
+        if (isOwner && !isConcluded) { 
             const endBtn = document.createElement('button');
             endBtn.textContent = '투표 종료';
             endBtn.onclick = endVote;
             voteSection.appendChild(endBtn);
         }
-    } else if (isOwner && !isConcluded) { // 결론나면 시작 버튼 숨김
+    } else if (isOwner && !isConcluded) { 
         const startBtn = document.createElement('button');
         startBtn.textContent = '투표 시작하기';
         startBtn.onclick = startVote;
@@ -407,7 +414,6 @@ function endVote() {
     database.ref(`rooms/${currentRoomId}/vote/isActive`).set(false);
 }
 
-// --- '토론 기록 저장' 기능 (새로 추가) ---
 async function downloadChatLog() {
     try {
         const chatsSnapshot = await database.ref(`chats/${currentRoomId}`).once('value');
@@ -418,7 +424,6 @@ async function downloadChatLog() {
         }
 
         let allMessages = [];
-        // 모든 채널의 메시지를 수집
         for (const channelName in allChannels) {
             const messages = allChannels[channelName];
             for (const msgId in messages) {
@@ -429,10 +434,8 @@ async function downloadChatLog() {
             }
         }
 
-        // 시간순으로 정렬
         allMessages.sort((a, b) => a.timestamp - b.timestamp);
 
-        // TXT 파일 내용 구성
         let logContent = `토론 주제: ${currentRoomData.topic}\n`;
         logContent += `진행자: ${currentRoomData.ownerNickname}\n`;
         logContent += `토론 생성일: ${new Date(currentRoomData.createdAt).toLocaleString()}\n\n`;
@@ -444,10 +447,14 @@ async function downloadChatLog() {
 
         allMessages.forEach(msg => {
             const time = new Date(msg.timestamp).toLocaleString();
-            logContent += `[${time}] [${msg.channel} 채널] ${msg.senderNickname}: ${msg.text}\n`;
+            let msgText = msg.text;
+            // [NEW] 답장 기록도 로그에 추가
+            if (msg.replyTo) {
+                msgText = `(답장: ${msg.replyTo.senderNickname}: ${msg.replyTo.text}) ${msgText}`;
+            }
+            logContent += `[${time}] [${msg.channel} 채널] ${msg.senderNickname}: ${msgText}\n`;
         });
 
-        // 파일 생성 및 다운로드
         const blob = new Blob([logContent], { type: 'text/plain;charset=utf-8' });
         const link = document.createElement('a');
         link.href = URL.createObjectURL(blob);
@@ -461,7 +468,6 @@ async function downloadChatLog() {
     }
 }
 
-// --- '결론 게시' 기능 (새로 추가) ---
 function handleConclusionSubmit(e) {
     e.preventDefault();
     const conclusionText = conclusionTextarea.value.trim();
@@ -540,7 +546,7 @@ function updateActiveChannelStyle() {
 }
 
 function applyPermissions() {
-    if (currentRoomData.isConcluded) return; // 결론난 방이면 권한 체크 X
+    if (currentRoomData.isConcluded) return; 
 
     let canWriteInCurrentChannel = false;
     if (activeChatChannel === 'all') {
@@ -559,7 +565,10 @@ function loadChatMessages() {
         chatWindowElement.innerHTML = '';
         const messages = snapshot.val();
         if (messages) {
-            Object.values(messages).forEach(displayChatMessage);
+            // *** [MODIFIED] 메시지 ID를 함께 전달 ***
+            Object.keys(messages).forEach(messageId => {
+                displayChatMessage(messageId, messages[messageId]);
+            });
         }
         if(chatWindowElement.scrollHeight - chatWindowElement.scrollTop < chatWindowElement.clientHeight + 200) {
             chatWindowElement.scrollTop = chatWindowElement.scrollHeight;
@@ -567,10 +576,37 @@ function loadChatMessages() {
     });
 }
 
-function displayChatMessage(message) {
+// *** [MODIFIED] 답장 UI를 표시하도록 수정 ***
+function displayChatMessage(messageId, message) {
     const messageElement = document.createElement('div');
     messageElement.classList.add('chat-message');
     messageElement.classList.add(message.senderId === currentUser.uid ? 'my-message' : 'other-message');
+    messageElement.id = `msg-${messageId}`; // 메시지 요소에 ID 부여
+
+    // --- [NEW] 답장 UI 생성 ---
+    if (message.replyTo) {
+        const replyContext = document.createElement('div');
+        replyContext.className = 'reply-context';
+        replyContext.innerHTML = `
+            <span class="reply-sender">Replying to ${message.replyTo.senderNickname}</span>
+            <span class="reply-text">${message.replyTo.text}</span>
+        `;
+        // 답장 원본 메시지로 스크롤 이동 기능
+        replyContext.onclick = () => {
+            const originalMessage = document.getElementById(`msg-${message.replyTo.msgId}`);
+            if (originalMessage) {
+                originalMessage.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                originalMessage.style.transition = 'background-color 0.5s';
+                originalMessage.style.backgroundColor = 'rgba(137, 177, 246, 0.3)';
+                setTimeout(() => {
+                    originalMessage.style.backgroundColor = '';
+                }, 1000);
+            }
+        };
+        messageElement.appendChild(replyContext);
+    }
+
+    // --- 기존 메시지 UI ---
     const senderSpan = document.createElement('span');
     senderSpan.className = 'sender';
     senderSpan.textContent = message.senderNickname;
@@ -583,26 +619,77 @@ function displayChatMessage(message) {
     const messageP = document.createElement('p');
     messageP.className = 'message-text';
     messageP.textContent = message.text;
+    
     messageElement.appendChild(senderSpan);
     messageElement.appendChild(messageP);
+
+    // --- [NEW] 답장 버튼 생성 ---
+    if (!currentRoomData.isConcluded) { // 결론난 방이 아닐 때만
+        const replyBtn = document.createElement('button');
+        replyBtn.className = 'reply-btn';
+        replyBtn.innerHTML = '↪';
+        replyBtn.title = '답장하기';
+        replyBtn.onclick = () => {
+            setReplyMode(messageId, message.senderNickname, message.text);
+        };
+        messageElement.appendChild(replyBtn);
+    }
+
     chatWindowElement.appendChild(messageElement);
 }
 
+// *** [MODIFIED] 답장 정보를 포함하여 메시지 전송 ***
 function sendMessage() {
     const messageText = chatInputElement.value.trim();
     const myNickname = currentRoomData.participants?.[currentUser.uid]?.nickname || currentUser.email.split('@')[0];
+    
     if (messageText && !chatInputElement.disabled) {
-        database.ref(`chats/${currentRoomId}/${activeChatChannel}`).push({
+        
+        const messageData = {
             senderId: currentUser.uid,
             senderNickname: myNickname,
             text: messageText,
             timestamp: firebase.database.ServerValue.TIMESTAMP
-        });
+        };
+
+        // [NEW] 답장 모드인 경우, 답장 정보 추가
+        if (currentReplyTo) {
+            messageData.replyTo = currentReplyTo;
+        }
+
+        database.ref(`chats/${currentRoomId}/${activeChatChannel}`).push(messageData);
+        
         chatInputElement.value = '';
         database.ref(`typing/${currentRoomId}/${currentUser.uid}`).remove();
+        cancelReplyMode(); // 메시지 전송 후 답장 모드 해제
     }
 }
 
+// --- [NEW] 답장 관련 함수들 ---
+function setReplyMode(msgId, senderNickname, text) {
+    if (!msgId || !senderNickname || !text) return;
+
+    currentReplyTo = {
+        msgId: msgId,
+        senderNickname: senderNickname,
+        text: text.substring(0, 50) + (text.length > 50 ? '...' : '') // 50자 미리보기
+    };
+    
+    replyPreviewContent.innerHTML = `
+        Replying to <strong>${senderNickname}</strong>
+        <span>${currentReplyTo.text}</span>
+    `;
+    replyPreviewBar.style.display = 'flex';
+    chatInputElement.focus();
+}
+
+function cancelReplyMode() {
+    currentReplyTo = null;
+    replyPreviewBar.style.display = 'none';
+}
+
+// (이하 나머지 함수들은 1-2단계에서 수정한 내용 그대로입니다)
+// ...
 function renderMemoTabs() {
     memoTabsContainer.innerHTML = '';
     const memoTabs = [
@@ -637,7 +724,7 @@ function switchMemoTab(tabId) {
 }
 
 function updateMemoWritePermission() {
-    if (currentRoomData.isConcluded) return; // 결론난 방이면 권한 체크 X
+    if (currentRoomData.isConcluded) return;
 
     let canWrite = true;
     if (activeMemoPath.includes('/shared/all')) {
@@ -652,7 +739,7 @@ function updateMemoWritePermission() {
 
 function getMemoPath(tabId) {
     if (tabId === 'personal') {
-        return `memos/${currentRoomId}/personal/${currentUser.uid}`;
+        return `mGemos/${currentRoomId}/personal/${currentUser.uid}`;
     } else {
         return `memos/${currentRoomId}/${tabId}`;
     }
