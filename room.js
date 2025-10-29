@@ -47,7 +47,7 @@ const roomSettingsForm = document.getElementById('room-settings-form');
 const settingsRolesList = document.getElementById('settings-roles-list');
 const settingsAddRoleBtn = document.getElementById('settings-add-role-btn');
 const roleAssignmentModal = document.getElementById('role-assignment-modal');
-const aiResultModal = document.getElementById('ai-result-modal');
+// const aiResultModal = document.getElementById('ai-result-modal'); // AI 관련 변수 제거
 
 document.addEventListener('DOMContentLoaded', () => {
     const urlParams = new URLSearchParams(window.location.search);
@@ -97,8 +97,9 @@ function loadRoomAndUserInfo() {
             roomOwnerInfoElement.textContent = `진행자: ${currentRoomData.ownerNickname}`;
             
             const isOwner = currentUser.uid === currentRoomData.ownerId;
-            ownerControlsElement.innerHTML = isOwner ? '<button id="ai-analysis-btn">이 토론 AI로 분석하기</button>' : '';
-            if(isOwner) document.getElementById('ai-analysis-btn').addEventListener('click', startAiAnalysis);
+            
+            // AI 버튼 생성 로직 제거
+            ownerControlsElement.innerHTML = ''; // 필요시 다른 방장 컨트롤 추가
             roomSettingsBtn.style.display = isOwner ? 'block' : 'none';
 
             const myInfo = currentRoomData.participants?.[currentUser.uid];
@@ -309,101 +310,7 @@ function endVote() {
     database.ref(`rooms/${currentRoomId}/vote/isActive`).set(false);
 }
 
-// room.js 파일에서 이 함수를 찾아서 교체하세요.
-
-function startAiAnalysis() {
-    const analyzeBtn = document.getElementById('ai-analysis-btn');
-    analyzeBtn.disabled = true;
-    analyzeBtn.textContent = '분석 중...';
-    
-    const allChatsRef = database.ref(`chats/${currentRoomId}`);
-    allChatsRef.once('value').then(snapshot => {
-        const allChannels = snapshot.val();
-        if(!allChannels) {
-            alert("분석할 대화 내용이 없습니다.");
-            analyzeBtn.disabled = false; analyzeBtn.textContent = '이 토론 AI로 분석하기';
-            return;
-        }
-        
-        let allMessages = [];
-        for(const channel in allChannels) {
-            for(const msgId in allChannels[channel]) {
-                allMessages.push(allChannels[channel][msgId]);
-            }
-        }
-        allMessages.sort((a,b) => a.timestamp - b.timestamp);
-        const fullChatLog = allMessages.map(msg => `${msg.senderNickname}: ${msg.text}`).join('\n');
-
-        if(!fullChatLog) {
-            alert("분석할 대화 내용이 없습니다.");
-            analyzeBtn.disabled = false; analyzeBtn.textContent = '이 토론 AI로 분석하기';
-            return;
-        }
-        
-        const analyzeDebate = functions.httpsCallable('analyzeDebateWithGemini');
-        analyzeDebate({ chatLog: fullChatLog })
-            .then(result => {
-                document.getElementById('ai-result-content').textContent = result.data.summary;
-                aiResultModal.style.display = 'flex';
-            })
-            .catch(error => {
-                // ▼▼▼▼▼▼▼▼▼▼ 이 부분이// room.js 파일에서 이 함수를 찾아서 통째로 교체하세요.
-
-function startAiAnalysis() {
-    const analyzeBtn = document.getElementById('ai-analysis-btn');
-    analyzeBtn.disabled = true;
-    analyzeBtn.textContent = '분석 중...';
-    
-    const allChatsRef = database.ref(`chats/${currentRoomId}`);
-    allChatsRef.once('value').then(snapshot => {
-        const allChannels = snapshot.val();
-        if(!allChannels) {
-            alert("분석할 대화 내용이 없습니다.");
-            analyzeBtn.disabled = false; analyzeBtn.textContent = '이 토론 AI로 분석하기';
-            return;
-        }
-        
-        let allMessages = [];
-        for(const channel in allChannels) {
-            for(const msgId in allChannels[channel]) {
-                allMessages.push(allChannels[channel][msgId]);
-            }
-        }
-        allMessages.sort((a,b) => a.timestamp - b.timestamp);
-        const fullChatLog = allMessages.map(msg => `${msg.senderNickname}: ${msg.text}`).join('\n');
-
-        if(!fullChatLog) {
-            alert("분석할 대화 내용이 없습니다.");
-            analyzeBtn.disabled = false; analyzeBtn.textContent = '이 토론 AI로 분석하기';
-            return;
-        }
-        
-        const analyzeDebate = functions.httpsCallable('analyzeDebateWithGemini');
-        analyzeDebate({ chatLog: fullChatLog })
-            .then(result => {
-                document.getElementById('ai-result-content').textContent = result.data.summary;
-                aiResultModal.style.display = 'flex';
-            })
-            .catch(error => {
-                console.error("AI Analysis Error:", error);
-                
-                // ▼▼▼▼▼▼▼▼▼▼ 이 부분이 'error.details'로 수정되었습니다! ▼▼▼▼▼▼▼▼▼▼
-                // error.message 대신, 서버가 보낸 '진짜' 오류 메시지(error.details)를 표시합니다.
-                // 만약 details가 비어있다면, message라도 표시합니다.
-                const errorMessage = error.details || error.message;
-                alert(`AI 분석 실패: ${errorMessage}`);
-                // ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲
-            })
-            .finally(() => {
-                analyzeBtn.disabled = false;
-                analyzeBtn.textContent = '이 토론 AI로 분석하기';
-            });
-    });
-    
-    document.getElementById('close-ai-result').onclick = () => {
-        aiResultModal.style.display = 'none';
-    };
-}
+// function startAiAnalysis() { ... } // AI 분석 함수 전체 제거
 
 toggleMemoBtn.addEventListener('click', () => {
     memoSection.classList.toggle('hidden');
@@ -586,7 +493,6 @@ leaveRoomBtn.addEventListener('click', () => {
     window.location.href = 'index.html';
 });
 
-// 방 설정 모달 로직
 roomSettingsBtn.addEventListener('click', () => {
     const roles = currentRoomData.roles || {};
     settingsRolesList.innerHTML = '';
