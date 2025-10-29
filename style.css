@@ -85,7 +85,7 @@ button:disabled { background-color: #999; cursor: not-allowed; opacity: 0.7; }
 .room-card-info p { margin: 0; color: var(--text-secondary); }
 .room-card-buttons { display: flex; gap: 10px; }
 .private-tag { font-size: 0.8em; color: var(--danger-color); margin-left: 8px; }
-.conclusion-preview { /* 결론 미리보기 */
+.conclusion-preview {
     font-size: 0.9em;
     font-style: italic;
     color: var(--text-secondary);
@@ -125,7 +125,7 @@ button:disabled { background-color: #999; cursor: not-allowed; opacity: 0.7; }
     background-color: var(--input-background); color: var(--text-primary);
     font-size: 0.9em; padding: 8px 12px; margin-left: 0;
 }
-.owner-controls { /* 방장 컨트롤 버튼 */
+.owner-controls {
     display: flex;
     gap: 10px;
     margin-top: 10px;
@@ -139,7 +139,6 @@ button:disabled { background-color: #999; cursor: not-allowed; opacity: 0.7; }
 }
 .mobile-toggle-btns { display: none; }
 
-/* 결론 요약 창 */
 .conclusion-summary-box {
     background-color: rgba(129, 201, 149, 0.1);
     border-bottom: 1px solid var(--success-color);
@@ -161,7 +160,6 @@ button:disabled { background-color: #999; cursor: not-allowed; opacity: 0.7; }
 
 .main-content { display: flex; flex-grow: 1; overflow: hidden; position: relative; }
 
-/* 참여자 목록 */
 .participants-section {
     width: 200px; min-width: 180px; border-right: 1px solid var(--border-color);
     padding: 20px; overflow-y: auto; display: flex; flex-direction: column;
@@ -188,7 +186,6 @@ button:disabled { background-color: #999; cursor: not-allowed; opacity: 0.7; }
 #vote-options button { width: 100%; margin: 5px 0; margin-left: 0; }
 .vote-result { font-size: 0.9em; }
 
-/* 채팅 */
 .chat-section { flex-grow: 3; display: flex; flex-direction: column; }
 .chat-window { flex-grow: 1; padding: 25px; overflow-y: auto; }
 .chat-message { max-width: 85%; margin-bottom: 15px; padding: 12px 18px; border-radius: 18px; display: flex; flex-direction: column; }
@@ -201,7 +198,6 @@ button:disabled { background-color: #999; cursor: not-allowed; opacity: 0.7; }
 .chat-input-wrapper input { flex-grow: 1; }
 #typing-indicator { font-size: 0.8em; color: var(--text-secondary); height: 20px; padding-top: 5px; }
 
-/* 메모 & 채팅 채널 */
 .memo-section {
     flex-grow: 2; display: flex; flex-direction: column;
     padding: 20px; min-width: 300px;
@@ -231,17 +227,31 @@ button:disabled { background-color: #999; cursor: not-allowed; opacity: 0.7; }
     background-color: rgba(0, 0, 0, 0.7); display: none; justify-content: center;
     align-items: center; z-index: 1000;
 }
+/* ▼▼▼ [버그 수정] 모달 콘텐츠 스타일 ▼▼▼ */
 .modal-content {
     background-color: #1e2432; padding: 30px; border-radius: 12px;
-    width: 100%; max-width: 500px; border: 1px solid var(--border-color);
-    max-height: 90vh;
-    display: flex; flex-direction: column;
+    width: 95%; /* 모바일 고려 */
+    max-width: 500px; border: 1px solid var(--border-color);
+    max-height: 90vh; /* 화면 넘어가지 않도록 최대 높이 제한 */
+    display: flex; /* 내부 요소(제목, 내용, 푸터)를 세로로 정렬 */
+    flex-direction: column;
 }
-.modal-content h2 { margin-top: 0; }
-.modal-content .form-group {
-    flex-grow: 1;
-    overflow-y: auto;
+.modal-content h2 { margin-top: 0; flex-shrink: 0; /* 제목은 줄어들지 않음 */ }
+
+/* ▼▼▼ [버그 수정] 모달 내용 영역 (스크롤 가능하게) ▼▼▼ */
+/* .form-group 대신 form 태그 자체를 스크롤 가능하게 만듭니다. */
+.modal-content form {
+    flex-grow: 1; /* 남는 공간을 모두 차지 */
+    overflow-y: auto; /* 내용이 넘치면 스크롤 */
+    padding-right: 15px; /* 스크롤바 공간 확보 (선택적) */
+    margin-right: -15px; /* 스크롤바 공간 보정 (선택적) */
 }
+
+/* 기존 form-group 스타일 유지 */
+.form-group { margin-bottom: 20px; }
+
+/* ▲▲▲ [버그 수정 완료] ▲▲▲ */
+
 .form-group label { display: block; margin-bottom: 8px; color: var(--text-secondary); }
 .form-group input[type="text"] { width: 100%; padding: 12px; background: var(--input-background); border: 1px solid var(--border-color); border-radius: 8px; color: var(--text-primary); font-size: 1em; }
 .form-group textarea {
@@ -267,7 +277,7 @@ button:disabled { background-color: #999; cursor: not-allowed; opacity: 0.7; }
 #role-assignment-list label { display: block; margin-bottom: 8px; cursor: pointer; }
 .modal-footer {
     display: flex; gap: 10px; justify-content: flex-end;
-    margin-top: 20px; flex-shrink: 0;
+    margin-top: 20px; flex-shrink: 0; /* 푸터는 줄어들지 않고 항상 보임 */
 }
 .modal-footer.space-between { justify-content: space-between; }
 
@@ -339,7 +349,7 @@ button:disabled { background-color: #999; cursor: not-allowed; opacity: 0.7; }
     .modal-content {
         width: 95%;
         padding: 20px;
-        height: auto;
+        height: auto; /* max-height가 있으므로 auto로 설정 */
     }
     #roles-list li, #settings-roles-list li {
         grid-template-areas: "color name name" "remove permissions permissions";
@@ -351,8 +361,8 @@ button:disabled { background-color: #999; cursor: not-allowed; opacity: 0.7; }
 /* --- 답장 기능용 스타일 --- */
 .chat-message {
     position: relative;
-    padding-right: 70px; /* 답장+반응 버튼 공간 확보 */
-    padding-bottom: 25px; /* 반응 표시 공간 확보 */
+    padding-right: 70px;
+    padding-bottom: 25px;
 }
 .reply-btn {
     position: absolute;
@@ -405,7 +415,7 @@ button:disabled { background-color: #999; cursor: not-allowed; opacity: 0.7; }
     color: #0d121c;
 }
 #reply-preview-bar {
-    display: none; /* JS로 제어 */
+    display: none;
     justify-content: space-between;
     align-items: center;
     padding: 8px 15px;
@@ -434,12 +444,11 @@ button:disabled { background-color: #999; cursor: not-allowed; opacity: 0.7; }
     margin-left: 10px;
 }
 
-/* --- [NEW] 메시지 반응 기능용 스타일 --- */
-/* 반응 추가 버튼 (답장 버튼 옆) */
+/* --- 메시지 반응 기능용 스타일 --- */
 .add-reaction-btn {
     position: absolute;
     top: 5px;
-    right: 40px; /* 답장 버튼 옆 */
+    right: 40px;
     font-size: 1.1em;
     cursor: pointer;
     opacity: 0;
@@ -458,19 +467,17 @@ button:disabled { background-color: #999; cursor: not-allowed; opacity: 0.7; }
     background: rgba(0,0,0,0.1);
     color: #0d121c;
 }
-
-/* 이모지 선택 팝오버 (기본 숨김) */
 .emoji-picker {
     position: absolute;
     background-color: var(--input-background);
     border: 1px solid var(--border-color);
     border-radius: 8px;
     padding: 10px;
-    display: none; /* JS로 제어 */
+    display: none;
     z-index: 20;
     box-shadow: 0 4px 15px rgba(0,0,0,0.3);
     right: 5px;
-    bottom: 30px; /* 메시지 하단 기준 */
+    bottom: 30px;
 }
 .emoji-picker span {
     font-size: 1.5em;
@@ -481,8 +488,6 @@ button:disabled { background-color: #999; cursor: not-allowed; opacity: 0.7; }
 .emoji-picker span:hover {
     transform: scale(1.2);
 }
-
-/* 반응 결과 표시 (메시지 하단) */
 .reactions-display {
     position: absolute;
     bottom: 5px;
@@ -503,7 +508,7 @@ button:disabled { background-color: #999; cursor: not-allowed; opacity: 0.7; }
 .reaction-tag:hover {
     filter: brightness(1.2);
 }
-.reaction-tag.my-reaction { /* 내가 반응한 경우 */
+.reaction-tag.my-reaction {
     background-color: var(--primary-accent);
     color: #0d121c;
     border-color: var(--primary-accent);
