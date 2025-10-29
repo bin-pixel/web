@@ -22,7 +22,7 @@ let activeMemoPath = '';
 let memoTimeout;
 let activeChatChannel = 'all';
 let typingTimeout;
-let currentReplyTo = null; // *** [NEW] 답장 상태를 저장할 변수 ***
+let currentReplyTo = null; 
 
 // DOM Elements
 const roomContainer = document.getElementById('room-container');
@@ -66,7 +66,7 @@ const conclusionTextarea = document.getElementById('conclusion-textarea');
 const conclusionSummaryBox = document.getElementById('conclusion-summary-box');
 const conclusionSummaryText = document.getElementById('conclusion-summary-text');
 
-// *** [NEW] 답장 미리보기 DOM ***
+// 답장 미리보기 DOM
 const replyPreviewBar = document.getElementById('reply-preview-bar');
 const replyPreviewContent = document.getElementById('reply-preview-content');
 const cancelReplyBtn = document.getElementById('cancel-reply-btn');
@@ -86,43 +86,62 @@ document.addEventListener('DOMContentLoaded', () => {
         chatSection.classList.add('full-width');
     }
 
-    auth.onAuthStateChanged((user) => {
+    // ▼▼▼ [버그 수정 1] 이 함수를 'async'로 변경 ▼▼▼
+    auth.onAuthStateChanged(async (user) => {
         if (user) {
             currentUser = user;
-            joinRoom();
-            loadRoomAndUserInfo();
-            setupTypingListeners();
+            
+            // ▼▼▼ [버그 수정 2] 'await'를 사용해 joinRoom이 끝날 때까지 기다립니다. ▼▼▼
+            try {
+                await joinRoom(); // (A)가 끝날 때까지 여기서 대기
+                
+                // (A)가 끝난 후에 (B)와 (C)를 실행
+                loadRoomAndUserInfo();
+                setupTypingListeners();
+
+            } catch (error) {
+                console.error("방 입장/생성 중 오류:", error);
+                alert("방 입장에 실패했습니다: " + error.message);
+                window.location.href = 'index.html';
+            }
+            
         } else {
             alert("토론방에 참여하려면 로그인이 필요합니다.");
             window.location.href = 'login.html';
         }
     });
+    // ▲▲▲ [버그 수정 완료] ▲▲▲
 
     toggleMemoBtnMobile.addEventListener('click', toggleMemoPanel);
     toggleMemoBtnPc.addEventListener('click', toggleMemoPanel);
     toggleParticipantsBtn.addEventListener('click', toggleParticipantsPanel);
 
-    // 결론 모달 닫기
     conclusionModal.querySelectorAll('.cancel-settings-btn').forEach(btn => {
         btn.onclick = () => conclusionModal.style.display = 'none';
     });
     conclusionForm.addEventListener('submit', handleConclusionSubmit);
-
-    // *** [NEW] 답장 취소 이벤트 ***
     cancelReplyBtn.addEventListener('click', cancelReplyMode);
 });
 
-function joinRoom() {
+// ▼▼▼ [버그 수정 3] 이 함수를 'async'와 'await'를 사용하도록 변경 ▼▼▼
+async function joinRoom() {
     const userRef = database.ref(`rooms/${currentRoomId}/participants/${currentUser.uid}`);
-    userRef.once('value', (snapshot) => {
-        if (!snapshot.exists()) {
-            database.ref(`users/${currentUser.uid}/nickname`).once('value', (nickSnap) => {
-                const nickname = nickSnap.val() || currentUser.email.split('@')[0];
-                userRef.set({ nickname, roles: ['관전자'] });
-            });
-        }
-    });
+    
+    // '.once'는 Promise를 반환하므로 await를 사용할 수 있습니다.
+    const snapshot = await userRef.once('value');
+
+    if (!snapshot.exists()) {
+        // 이 사용자가 처음 입장하는 경우
+        const nickSnap = await database.ref(`users/${currentUser.uid}/nickname`).once('value');
+        const nickname = nickSnap.val() || currentUser.email.split('@')[0];
+        
+        // 'set'도 Promise를 반환하므로 await를 사용합니다.
+        await userRef.set({ nickname, roles: ['관전자'] });
+    }
+    // 함수가 종료되면(Promise가 resolve되면) 'await joinRoom()' 다음 코드가 실행됩니다.
+    return;
 }
+// ▲▲▲ [버그 수정 완료] ▲▲▲
 
 function loadRoomAndUserInfo() {
     const roomRef = database.ref('rooms/' + currentRoomId);
@@ -135,8 +154,7 @@ function loadRoomAndUserInfo() {
             const isOwner = currentUser.uid === currentRoomData.ownerId;
             const isConcluded = currentRoomData.isConcluded;
 
-            // --- 방장 컨트롤 (결론/저장 버튼) ---
-            ownerControlsElement.innerHTML = ''; // 초기화
+            ownerControlsElement.innerHTML = ''; 
             if (isOwner) {
                 if (!isConcluded) {
                     const concludeBtn = document.createElement('button');
@@ -153,7 +171,6 @@ function loadRoomAndUserInfo() {
             }
             roomSettingsBtn.style.display = (isOwner && !isConcluded) ? 'block' : 'none';
 
-            // --- 결론 요약 창 표시 ---
             if (isConcluded && currentRoomData.conclusion) {
                 conclusionSummaryBox.style.display = 'block';
                 conclusionSummaryText.textContent = currentRoomData.conclusion;
@@ -161,32 +178,35 @@ function loadRoomAndUserInfo() {
                 conclusionSummaryBox.style.display = 'none';
             }
 
-            // --- 참여자 정보 및 강퇴 확인 ---
+            // [버그 수정] 이제 이 코드가 실행될 때 'myInfo'는 항상 존재해야 정상입니다.
             const myInfo = currentRoomData.participants?.[currentUser.uid];
+            
             if(myInfo) {
                 updateNicknameDisplay(myInfo.nickname);
                 currentUserRoles = myInfo.roles || (currentRoomData.roles['관전자'] ? ['관전자'] : []);
             } else if (currentRoomData.participants) { 
+                 // 'await joinRoom'을 통과했는데도 myInfo가 없다면, 그건 진짜 강퇴당한 것입니다.
                  document.body.innerHTML = '<h1>방에서 퇴장당했습니다.</h1><a href="index.html">메인으로 돌아가기</a>';
                  return;
             } else {
+                 // 방이 비정상적이거나 participants 데이터가 없는 경우 (예: 방금 생성됨)
+                 // joinRoom에 의해 곧 데이터가 채워질 것이므로 기본값으로 둡니다.
                 currentUserRoles = (currentRoomData.roles['관전자'] ? ['관전자'] : []);
             }
             
             renderParticipants(currentRoomData.participants);
             renderChatChannels();
             renderMemoTabs();
-            applyPermissions(); // 권한 적용 (결론 상태 포함)
+            applyPermissions(); 
             loadChatMessages();
             renderVoteSection(currentRoomData.vote);
 
-            // --- 결론난 방은 모든 기능 잠금 ---
             if (isConcluded) {
                 chatInputElement.placeholder = '결론이 난 토론입니다.';
                 chatInputElement.disabled = true;
                 memoPadElement.placeholder = '결론이 난 토론입니다.';
                 memoPadElement.disabled = true;
-                cancelReplyMode(); // 답장 모드 강제 해제
+                cancelReplyMode(); 
             }
 
         } else {
@@ -448,7 +468,6 @@ async function downloadChatLog() {
         allMessages.forEach(msg => {
             const time = new Date(msg.timestamp).toLocaleString();
             let msgText = msg.text;
-            // [NEW] 답장 기록도 로그에 추가
             if (msg.replyTo) {
                 msgText = `(답장: ${msg.replyTo.senderNickname}: ${msg.replyTo.text}) ${msgText}`;
             }
@@ -565,7 +584,6 @@ function loadChatMessages() {
         chatWindowElement.innerHTML = '';
         const messages = snapshot.val();
         if (messages) {
-            // *** [MODIFIED] 메시지 ID를 함께 전달 ***
             Object.keys(messages).forEach(messageId => {
                 displayChatMessage(messageId, messages[messageId]);
             });
@@ -576,14 +594,12 @@ function loadChatMessages() {
     });
 }
 
-// *** [MODIFIED] 답장 UI를 표시하도록 수정 ***
 function displayChatMessage(messageId, message) {
     const messageElement = document.createElement('div');
     messageElement.classList.add('chat-message');
     messageElement.classList.add(message.senderId === currentUser.uid ? 'my-message' : 'other-message');
-    messageElement.id = `msg-${messageId}`; // 메시지 요소에 ID 부여
+    messageElement.id = `msg-${messageId}`; 
 
-    // --- [NEW] 답장 UI 생성 ---
     if (message.replyTo) {
         const replyContext = document.createElement('div');
         replyContext.className = 'reply-context';
@@ -591,7 +607,6 @@ function displayChatMessage(messageId, message) {
             <span class="reply-sender">Replying to ${message.replyTo.senderNickname}</span>
             <span class="reply-text">${message.replyTo.text}</span>
         `;
-        // 답장 원본 메시지로 스크롤 이동 기능
         replyContext.onclick = () => {
             const originalMessage = document.getElementById(`msg-${message.replyTo.msgId}`);
             if (originalMessage) {
@@ -606,7 +621,6 @@ function displayChatMessage(messageId, message) {
         messageElement.appendChild(replyContext);
     }
 
-    // --- 기존 메시지 UI ---
     const senderSpan = document.createElement('span');
     senderSpan.className = 'sender';
     senderSpan.textContent = message.senderNickname;
@@ -623,8 +637,7 @@ function displayChatMessage(messageId, message) {
     messageElement.appendChild(senderSpan);
     messageElement.appendChild(messageP);
 
-    // --- [NEW] 답장 버튼 생성 ---
-    if (!currentRoomData.isConcluded) { // 결론난 방이 아닐 때만
+    if (!currentRoomData.isConcluded) { 
         const replyBtn = document.createElement('button');
         replyBtn.className = 'reply-btn';
         replyBtn.innerHTML = '↪';
@@ -638,7 +651,6 @@ function displayChatMessage(messageId, message) {
     chatWindowElement.appendChild(messageElement);
 }
 
-// *** [MODIFIED] 답장 정보를 포함하여 메시지 전송 ***
 function sendMessage() {
     const messageText = chatInputElement.value.trim();
     const myNickname = currentRoomData.participants?.[currentUser.uid]?.nickname || currentUser.email.split('@')[0];
@@ -652,7 +664,6 @@ function sendMessage() {
             timestamp: firebase.database.ServerValue.TIMESTAMP
         };
 
-        // [NEW] 답장 모드인 경우, 답장 정보 추가
         if (currentReplyTo) {
             messageData.replyTo = currentReplyTo;
         }
@@ -661,18 +672,17 @@ function sendMessage() {
         
         chatInputElement.value = '';
         database.ref(`typing/${currentRoomId}/${currentUser.uid}`).remove();
-        cancelReplyMode(); // 메시지 전송 후 답장 모드 해제
+        cancelReplyMode(); 
     }
 }
 
-// --- [NEW] 답장 관련 함수들 ---
 function setReplyMode(msgId, senderNickname, text) {
     if (!msgId || !senderNickname || !text) return;
 
     currentReplyTo = {
         msgId: msgId,
         senderNickname: senderNickname,
-        text: text.substring(0, 50) + (text.length > 50 ? '...' : '') // 50자 미리보기
+        text: text.substring(0, 50) + (text.length > 50 ? '...' : '') 
     };
     
     replyPreviewContent.innerHTML = `
@@ -688,8 +698,6 @@ function cancelReplyMode() {
     replyPreviewBar.style.display = 'none';
 }
 
-// (이하 나머지 함수들은 1-2단계에서 수정한 내용 그대로입니다)
-// ...
 function renderMemoTabs() {
     memoTabsContainer.innerHTML = '';
     const memoTabs = [
@@ -739,7 +747,7 @@ function updateMemoWritePermission() {
 
 function getMemoPath(tabId) {
     if (tabId === 'personal') {
-        return `mGemos/${currentRoomId}/personal/${currentUser.uid}`;
+        return `memos/${currentRoomId}/personal/${currentUser.uid}`;
     } else {
         return `memos/${currentRoomId}/${tabId}`;
     }
