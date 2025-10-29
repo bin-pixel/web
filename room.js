@@ -347,11 +347,52 @@ function startAiAnalysis() {
                 aiResultModal.style.display = 'flex';
             })
             .catch(error => {
-                // ▼▼▼▼▼▼▼▼▼▼ 이 부분이 핵심 수정 사항입니다 ▼▼▼▼▼▼▼▼▼▼
+                // ▼▼▼▼▼▼▼▼▼▼ 이 부분이// room.js 파일에서 이 함수를 찾아서 통째로 교체하세요.
+
+function startAiAnalysis() {
+    const analyzeBtn = document.getElementById('ai-analysis-btn');
+    analyzeBtn.disabled = true;
+    analyzeBtn.textContent = '분석 중...';
+    
+    const allChatsRef = database.ref(`chats/${currentRoomId}`);
+    allChatsRef.once('value').then(snapshot => {
+        const allChannels = snapshot.val();
+        if(!allChannels) {
+            alert("분석할 대화 내용이 없습니다.");
+            analyzeBtn.disabled = false; analyzeBtn.textContent = '이 토론 AI로 분석하기';
+            return;
+        }
+        
+        let allMessages = [];
+        for(const channel in allChannels) {
+            for(const msgId in allChannels[channel]) {
+                allMessages.push(allChannels[channel][msgId]);
+            }
+        }
+        allMessages.sort((a,b) => a.timestamp - b.timestamp);
+        const fullChatLog = allMessages.map(msg => `${msg.senderNickname}: ${msg.text}`).join('\n');
+
+        if(!fullChatLog) {
+            alert("분석할 대화 내용이 없습니다.");
+            analyzeBtn.disabled = false; analyzeBtn.textContent = '이 토론 AI로 분석하기';
+            return;
+        }
+        
+        const analyzeDebate = functions.httpsCallable('analyzeDebateWithGemini');
+        analyzeDebate({ chatLog: fullChatLog })
+            .then(result => {
+                document.getElementById('ai-result-content').textContent = result.data.summary;
+                aiResultModal.style.display = 'flex';
+            })
+            .catch(error => {
                 console.error("AI Analysis Error:", error);
-                // 서버에서 보낸 구체적인 오류 메시지를 alert 창에 표시합니다.
-                alert(`AI 분석 실패: ${error.message}`);
-                // ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲
+                
+                // ▼▼▼▼▼▼▼▼▼▼ 이 부분이 'error.details'로 수정되었습니다! ▼▼▼▼▼▼▼▼▼▼
+                // error.message 대신, 서버가 보낸 '진짜' 오류 메시지(error.details)를 표시합니다.
+                // 만약 details가 비어있다면, message라도 표시합니다.
+                const errorMessage = error.details || error.message;
+                alert(`AI 분석 실패: ${errorMessage}`);
+                // ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲
             })
             .finally(() => {
                 analyzeBtn.disabled = false;
@@ -655,4 +696,5 @@ roomSettingsForm.addEventListener('submit', async (e) => {
 roomSettingsModal.querySelectorAll('.cancel-settings-btn').forEach(btn => {
     btn.onclick = () => roomSettingsModal.style.display = 'none';
 });
+
 
