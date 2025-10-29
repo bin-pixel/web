@@ -7,11 +7,15 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div class="container room-container">
+    <div class="container room-container" id="room-container">
         <header class="room-header">
+            <div class="mobile-toggle-btns">
+                <button id="toggle-participants-btn">👥</button>
+                <button id="toggle-memo-btn-mobile">📝</button>
+            </div>
             <div class="header-buttons">
                 <button id="invite-btn" title="초대 링크 복사">🔗</button>
-                <button id="toggle-memo-btn">메모장</button>
+                <button id="toggle-memo-btn-pc">메모장</button>
                 <button id="leave-room-btn">나가기</button>
             </div>
             <h1 id="room-topic">...</h1>
@@ -20,7 +24,7 @@
             <div id="owner-controls"></div>
         </header>
         <div class="main-content">
-            <aside class="participants-section">
+            <aside class="participants-section" id="participants-section">
                 <h4>
                     <span>참여자</span>
                     <button id="room-settings-btn" style="display: none;" title="방 설정">⚙️</button>
@@ -58,7 +62,7 @@
                     <ul id="settings-roles-list"></ul>
                     <button type="button" id="settings-add-role-btn">+ 역할 추가</button>
                 </div>
-                <div style="display: flex; gap: 10px; justify-content: flex-end;">
+                <div class="modal-footer">
                     <button type="button" class="cancel-settings-btn">취소</button>
                     <button type="submit">저장</button>
                 </div>
@@ -71,14 +75,18 @@
             <h2 id="role-assignment-title">역할 할당</h2>
             <form id="role-assignment-form">
                 <div class="form-group" id="role-assignment-list"></div>
-                <div style="display: flex; gap: 10px; justify-content: flex-end;">
-                    <button type="button" class="cancel-settings-btn">취소</button>
-                    <button type="submit">저장</button>
+                <div class="modal-footer space-between">
+                    <button type="button" id="kick-user-btn" class="btn-danger" style="display: none;">이 사용자 강퇴</button>
+                    
+                    <div>
+                        <button type="button" class="cancel-settings-btn">취소</button>
+                        <button type="submit">저장</button>
+                    </div>
                 </div>
             </form>
         </div>
     </div>
-    
+
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
