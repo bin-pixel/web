@@ -14,9 +14,7 @@
   "main": "index.js",
   "dependencies": {
     "firebase-admin": "^11.8.0",
-    "firebase-functions": "^4.3.1",
-    "node-fetch": "^2.6.11",
-    "@google/generative-ai": "^0.14.1"  // <--- 이 줄을 추가하세요.
+    "firebase-functions": "^4.3.1"
   },
   "private": true
 }
