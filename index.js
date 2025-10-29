@@ -192,6 +192,7 @@ function loadRooms() {
                 infoDiv.innerHTML = `<h3>${topic}</h3><p>진행자: ${ownerNickname}</p>`;
 
                 const buttonsDiv = document.createElement('div');
+                buttonsDiv.className = 'room-card-buttons';
                 const enterButton = document.createElement('button');
                 enterButton.textContent = '입장하기';
                 enterButton.onclick = () => { window.location.href = `room.html?id=${roomId}`; };
