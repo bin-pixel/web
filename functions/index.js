@@ -8,7 +8,7 @@ admin.initializeApp();
 // !! 보안 경고 !!
 // 이 코드는 API 키를 직접 노출하므로 매우 위험합니다.
 // ======================================================================
-const GEMINI_API_KEY = "여기에_당신의_실제_API_키를_붙여넣으세요";
+const GEMINI_API_KEY = "AIzaSyDiCGOm3BrLQOP6ZQmZW2Pz2WlLII0hHdY";
 
 // AI 모델 초기화
 const genAI = new GoogleGenerativeAI(GEMINI_API_KEY);
