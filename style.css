@@ -139,9 +139,9 @@ button:disabled { background-color: #999; cursor: not-allowed; opacity: 0.7; }
 }
 .mobile-toggle-btns { display: none; }
 
-/* 결론 요약 창 (새로 추가) */
+/* 결론 요약 창 */
 .conclusion-summary-box {
-    background-color: rgba(129, 201, 149, 0.1); /* --success-color 옅게 */
+    background-color: rgba(129, 201, 149, 0.1); 
     border-bottom: 1px solid var(--success-color);
     border-top: 1px solid var(--success-color);
     padding: 15px 20px;
@@ -234,17 +234,17 @@ button:disabled { background-color: #999; cursor: not-allowed; opacity: 0.7; }
 .modal-content {
     background-color: #1e2432; padding: 30px; border-radius: 12px;
     width: 100%; max-width: 500px; border: 1px solid var(--border-color);
-    max-height: 90vh; /* 모달이 화면을 넘어가지 않도록 */
+    max-height: 90vh;
     display: flex; flex-direction: column;
 }
 .modal-content h2 { margin-top: 0; }
 .modal-content .form-group {
     flex-grow: 1;
-    overflow-y: auto; /* 모달 내용이 길 경우 스크롤 */
+    overflow-y: auto; 
 }
 .form-group label { display: block; margin-bottom: 8px; color: var(--text-secondary); }
 .form-group input[type="text"] { width: 100%; padding: 12px; background: var(--input-background); border: 1px solid var(--border-color); border-radius: 8px; color: var(--text-primary); font-size: 1em; }
-.form-group textarea { /* 결론 모달용 */
+.form-group textarea { 
     width: 100%; resize: vertical; min-height: 150px;
     background: var(--input-background); border: 1px solid var(--border-color);
     border-radius: 8px; color: var(--text-primary); font-size: 1em; padding: 12px;
@@ -346,4 +346,89 @@ button:disabled { background-color: #999; cursor: not-allowed; opacity: 0.7; }
         grid-template-columns: 40px 1fr auto;
     }
     .permissions { padding-top: 10px; }
+}
+
+/* --- [NEW] 답장 기능용 스타일 --- */
+.chat-message {
+    position: relative; 
+    padding-right: 40px; /* 답장 버튼 공간 확보 */
+}
+.reply-btn {
+    position: absolute;
+    top: 5px;
+    right: 10px;
+    font-size: 1.2em;
+    cursor: pointer;
+    opacity: 0;
+    transition: opacity 0.2s;
+    padding: 2px 5px;
+    background: rgba(255,255,255,0.1);
+    border-radius: 4px;
+    color: var(--text-primary);
+    border: none;
+    margin: 0;
+}
+.chat-message:hover .reply-btn {
+    opacity: 1;
+}
+.my-message .reply-btn {
+    background: rgba(0,0,0,0.1);
+    color: #0d121c;
+}
+.reply-context {
+    background: rgba(0,0,0,0.1);
+    border-left: 3px solid var(--primary-accent);
+    padding: 5px 10px;
+    margin-bottom: 8px;
+    border-radius: 4px;
+    cursor: pointer;
+}
+.reply-context .reply-sender {
+    font-weight: bold;
+    font-size: 0.9em;
+    color: var(--primary-accent);
+}
+.reply-context .reply-text {
+    font-size: 0.9em;
+    opacity: 0.8;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: block;
+}
+.my-message .reply-context {
+    background: rgba(255,255,255,0.2);
+    border-left-color: #0d121c;
+}
+.my-message .reply-context .reply-sender {
+    color: #0d121c;
+}
+#reply-preview-bar {
+    display: none; /* JS로 제어 */
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 15px;
+    background: var(--input-background);
+    border-radius: 6px;
+    margin-bottom: 10px;
+}
+#reply-preview-content {
+    font-size: 0.9em;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+#reply-preview-content strong {
+    color: var(--primary-accent);
+}
+#reply-preview-content span {
+    opacity: 0.7;
+}
+#cancel-reply-btn {
+    background: none;
+    border: none;
+    color: var(--text-primary);
+    font-size: 1.2em;
+    padding: 0 5px;
+    margin-left: 10px;
 }
