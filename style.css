@@ -19,7 +19,7 @@ body {
     background: var(--background-gradient);
     color: var(--text-primary);
     margin: 0;
-    padding: 10px; /* 모바일을 위해 패딩 조정 */
+    padding: 10px;
     height: 100vh;
 }
 
@@ -67,7 +67,7 @@ button:disabled { background-color: #999; cursor: not-allowed; opacity: 0.7; }
 /* --- 메인 페이지 --- */
 .header { 
     border-bottom: 2px solid var(--border-color); padding-bottom: 15px; margin-bottom: 25px; 
-    display: flex; flex-wrap: wrap; /* 모바일에서 줄바꿈 */
+    display: flex; flex-wrap: wrap;
     justify-content: space-between; 
     align-items: center;
     gap: 15px;
@@ -77,7 +77,7 @@ button:disabled { background-color: #999; cursor: not-allowed; opacity: 0.7; }
 .room-card { 
     background-color: var(--surface-color); border: 1px solid var(--border-color); 
     padding: 20px; margin-bottom: 15px; border-radius: 8px; 
-    display: flex; flex-direction: column; /* 모바일에서 세로 정렬 */
+    display: flex; flex-direction: column;
     gap: 15px;
 }
 .room-card-info { flex-grow: 1; }
@@ -85,16 +85,24 @@ button:disabled { background-color: #999; cursor: not-allowed; opacity: 0.7; }
 .room-card-info p { margin: 0; color: var(--text-secondary); }
 .room-card-buttons { display: flex; gap: 10px; }
 .private-tag { font-size: 0.8em; color: var(--danger-color); margin-left: 8px; }
+.conclusion-preview { /* 결론 미리보기 */
+    font-size: 0.9em;
+    font-style: italic;
+    color: var(--text-secondary);
+    border-left: 3px solid var(--success-color);
+    padding-left: 10px;
+    margin-top: 10px;
+}
 
 /* --- 토론방 페이지 --- */
 .room-container {
-    height: calc(100vh - 20px); /* body 패딩 고려 */
+    height: calc(100vh - 20px); 
     max-width: 1400px; 
     display: flex; flex-direction: column;
     background: var(--surface-color); border-radius: 12px; border: 1px solid var(--border-color);
     backdrop-filter: blur(10px); 
     overflow: hidden;
-    position: relative; /* 모바일 오버레이 기준점 */
+    position: relative;
 }
 .room-header { 
     padding: 15px 20px; 
@@ -117,8 +125,39 @@ button:disabled { background-color: #999; cursor: not-allowed; opacity: 0.7; }
     background-color: var(--input-background); color: var(--text-primary);
     font-size: 0.9em; padding: 8px 12px; margin-left: 0;
 }
-/* 모바일용 토글 버튼 (평소엔 숨김) */
+.owner-controls { /* 방장 컨트롤 버튼 */
+    display: flex;
+    gap: 10px;
+    margin-top: 10px;
+}
+.owner-controls button {
+    font-size: 0.8em;
+    padding: 5px 10px;
+    background-color: var(--input-background);
+    color: var(--text-primary);
+    margin-left: 0;
+}
 .mobile-toggle-btns { display: none; }
+
+/* 결론 요약 창 (새로 추가) */
+.conclusion-summary-box {
+    background-color: rgba(129, 201, 149, 0.1); /* --success-color 옅게 */
+    border-bottom: 1px solid var(--success-color);
+    border-top: 1px solid var(--success-color);
+    padding: 15px 20px;
+}
+.conclusion-summary-box h3 {
+    color: var(--success-color);
+    margin: 0 0 10px 0;
+}
+.conclusion-summary-box pre {
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    margin: 0;
+    font-family: inherit;
+    font-size: 0.95em;
+    color: var(--text-primary);
+}
 
 .main-content { display: flex; flex-grow: 1; overflow: hidden; position: relative; }
 
@@ -126,7 +165,7 @@ button:disabled { background-color: #999; cursor: not-allowed; opacity: 0.7; }
 .participants-section {
     width: 200px; min-width: 180px; border-right: 1px solid var(--border-color);
     padding: 20px; overflow-y: auto; display: flex; flex-direction: column;
-    background-color: var(--surface-color); /* 모바일 오버레이용 배경 */
+    background-color: var(--surface-color); 
 }
 .participants-section h4 { 
     margin: 0 0 15px 0; display: flex; justify-content: space-between; align-items: center; 
@@ -166,7 +205,7 @@ button:disabled { background-color: #999; cursor: not-allowed; opacity: 0.7; }
 .memo-section {
     flex-grow: 2; display: flex; flex-direction: column;
     padding: 20px; min-width: 300px;
-    background-color: var(--surface-color); /* 모바일 오버레이용 배경 */
+    background-color: var(--surface-color);
 }
 .memo-section.hidden { display: none; }
 .chat-section.full-width { flex-grow: 5; }
@@ -195,11 +234,21 @@ button:disabled { background-color: #999; cursor: not-allowed; opacity: 0.7; }
 .modal-content {
     background-color: #1e2432; padding: 30px; border-radius: 12px;
     width: 100%; max-width: 500px; border: 1px solid var(--border-color);
+    max-height: 90vh; /* 모달이 화면을 넘어가지 않도록 */
+    display: flex; flex-direction: column;
 }
 .modal-content h2 { margin-top: 0; }
-.form-group { margin-bottom: 20px; }
+.modal-content .form-group {
+    flex-grow: 1;
+    overflow-y: auto; /* 모달 내용이 길 경우 스크롤 */
+}
 .form-group label { display: block; margin-bottom: 8px; color: var(--text-secondary); }
 .form-group input[type="text"] { width: 100%; padding: 12px; background: var(--input-background); border: 1px solid var(--border-color); border-radius: 8px; color: var(--text-primary); font-size: 1em; }
+.form-group textarea { /* 결론 모달용 */
+    width: 100%; resize: vertical; min-height: 150px;
+    background: var(--input-background); border: 1px solid var(--border-color);
+    border-radius: 8px; color: var(--text-primary); font-size: 1em; padding: 12px;
+}
 #roles-list, #settings-roles-list { list-style: none; padding: 0; }
 #roles-list li, #settings-roles-list li {
     display: grid; grid-template-columns: 40px 1fr auto;
@@ -216,8 +265,10 @@ button:disabled { background-color: #999; cursor: not-allowed; opacity: 0.7; }
 .permissions input[type="checkbox"] { width: 15px; height: 15px; }
 #roles-list button, #settings-roles-list button { grid-area: remove; }
 #role-assignment-list label { display: block; margin-bottom: 8px; cursor: pointer; }
-#kick-user-btn { margin-top: 20px; } /* 강퇴 버튼용 */
-.modal-footer { display: flex; gap: 10px; justify-content: flex-end; }
+.modal-footer { 
+    display: flex; gap: 10px; justify-content: flex-end; 
+    margin-top: 20px; flex-shrink: 0;
+}
 .modal-footer.space-between { justify-content: space-between; }
 
 /* --- 모바일 반응형 --- */
@@ -225,7 +276,6 @@ button:disabled { background-color: #999; cursor: not-allowed; opacity: 0.7; }
     body { padding: 0; }
     .container { padding: 0; }
     
-    /* 메인 페이지 */
     .header { gap: 10px; }
     .header h1 { font-size: 1.5em; width: 100%; text-align: center; }
     .header-controls { width: 100%; justify-content: center; }
@@ -233,9 +283,8 @@ button:disabled { background-color: #999; cursor: not-allowed; opacity: 0.7; }
     .room-card-buttons { width: 100%; display: grid; grid-template-columns: 1fr; }
     .room-card-buttons button { margin-left: 0; }
 
-    /* 토론방 페이지 */
     .room-container { border-radius: 0; height: 100vh; }
-    .header-buttons { display: none; } /* PC용 버튼 숨기기 */
+    .header-buttons { display: none; }
     .mobile-toggle-btns { 
         display: flex; 
         gap: 10px; 
@@ -251,8 +300,11 @@ button:disabled { background-color: #999; cursor: not-allowed; opacity: 0.7; }
         color: var(--text-primary);
         margin-left: 0;
     }
+    .owner-controls {
+        padding-top: 10px;
+        border-top: 1px solid var(--border-color);
+    }
     
-    /* 사이드 패널 (참여자, 메모) 기본 숨김 */
     .participants-section, .memo-section {
         position: absolute;
         top: 0;
@@ -273,22 +325,21 @@ button:disabled { background-color: #999; cursor: not-allowed; opacity: 0.7; }
         transform: translateX(100%);
     }
     
-    /* JS가 이 클래스를 추가하면 패널이 나타남 */
     .room-container.show-participants .participants-section {
         transform: translateX(0);
     }
     .room-container.show-memo .memo-section {
         transform: translateX(0);
     }
-    .chat-section.full-width { flex-grow: 1; } /* 모바일에서 항상 100% */
+    .chat-section.full-width { flex-grow: 1; }
     
     .chat-window { padding: 15px; }
     .chat-input-area { padding: 10px; }
     
-    /* 모달 */
     .modal-content {
         width: 95%;
         padding: 20px;
+        height: auto;
     }
     #roles-list li, #settings-roles-list li {
         grid-template-areas: "color name name" "remove permissions permissions";
