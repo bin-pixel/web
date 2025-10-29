@@ -309,6 +309,8 @@ function endVote() {
     database.ref(`rooms/${currentRoomId}/vote/isActive`).set(false);
 }
 
+// room.js 파일에서 이 함수를 찾아서 교체하세요.
+
 function startAiAnalysis() {
     const analyzeBtn = document.getElementById('ai-analysis-btn');
     analyzeBtn.disabled = true;
@@ -344,7 +346,13 @@ function startAiAnalysis() {
                 document.getElementById('ai-result-content').textContent = result.data.summary;
                 aiResultModal.style.display = 'flex';
             })
-            .catch(error => alert(`AI 분석 실패: ${error.message}`))
+            .catch(error => {
+                // ▼▼▼▼▼▼▼▼▼▼ 이 부분이 핵심 수정 사항입니다 ▼▼▼▼▼▼▼▼▼▼
+                console.error("AI Analysis Error:", error);
+                // 서버에서 보낸 구체적인 오류 메시지를 alert 창에 표시합니다.
+                alert(`AI 분석 실패: ${error.message}`);
+                // ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲
+            })
             .finally(() => {
                 analyzeBtn.disabled = false;
                 analyzeBtn.textContent = '이 토론 AI로 분석하기';
@@ -647,3 +655,4 @@ roomSettingsForm.addEventListener('submit', async (e) => {
 roomSettingsModal.querySelectorAll('.cancel-settings-btn').forEach(btn => {
     btn.onclick = () => roomSettingsModal.style.display = 'none';
 });
+
