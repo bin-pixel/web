@@ -23,31 +23,41 @@ let memoTimeout;
 let activeChatChannel = 'all';
 let typingTimeout;
 
+// DOM Elements
+const roomContainer = document.getElementById('room-container');
 const roomTopicElement = document.getElementById('room-topic');
 const roomOwnerInfoElement = document.getElementById('room-owner-info');
 const ownerControlsElement = document.getElementById('owner-controls');
 const nicknameAreaElement = document.getElementById('nickname-area');
 const chatSection = document.getElementById('chat-section');
 const memoSection = document.getElementById('memo-section');
+const participantsSection = document.getElementById('participants-section');
 const chatWindowElement = document.getElementById('chat-window');
 const chatInputElement = document.getElementById('chat-input');
 const sendBtnElement = document.getElementById('send-btn');
 const memoPadElement = document.getElementById('memo-pad');
 const memoTabsContainer = document.getElementById('memo-tabs');
 const leaveRoomBtn = document.getElementById('leave-room-btn');
-const toggleMemoBtn = document.getElementById('toggle-memo-btn');
 const participantsListElement = document.getElementById('participants-list');
 const chatChannelsList = document.getElementById('chat-channels-list');
 const typingIndicator = document.getElementById('typing-indicator');
 const voteSection = document.getElementById('vote-section');
 const inviteBtn = document.getElementById('invite-btn');
+
+// 모바일 토글 버튼
+const toggleParticipantsBtn = document.getElementById('toggle-participants-btn');
+const toggleMemoBtnMobile = document.getElementById('toggle-memo-btn-mobile');
+const toggleMemoBtnPc = document.getElementById('toggle-memo-btn-pc');
+
+// 모달 DOM
 const roomSettingsBtn = document.getElementById('room-settings-btn');
 const roomSettingsModal = document.getElementById('room-settings-modal');
 const roomSettingsForm = document.getElementById('room-settings-form');
 const settingsRolesList = document.getElementById('settings-roles-list');
 const settingsAddRoleBtn = document.getElementById('settings-add-role-btn');
 const roleAssignmentModal = document.getElementById('role-assignment-modal');
-// const aiResultModal = document.getElementById('ai-result-modal'); // AI 관련 변수 제거
+const kickUserBtn = document.getElementById('kick-user-btn');
+
 
 document.addEventListener('DOMContentLoaded', () => {
     const urlParams = new URLSearchParams(window.location.search);
@@ -58,7 +68,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     
     const memoState = localStorage.getItem(`memoState_${currentRoomId}`);
-    if (memoState === 'hidden') {
+    if (memoState === 'hidden' && window.innerWidth > 768) { // PC에서만 복원
         memoSection.classList.add('hidden');
         chatSection.classList.add('full-width');
     }
@@ -74,6 +84,11 @@ document.addEventListener('DOMContentLoaded', () => {
             window.location.href = 'login.html';
         }
     });
+
+    // 모바일/PC 메모 토글 이벤트
+    toggleMemoBtnMobile.addEventListener('click', toggleMemoPanel);
+    toggleMemoBtnPc.addEventListener('click', toggleMemoPanel);
+    toggleParticipantsBtn.addEventListener('click', toggleParticipantsPanel);
 });
 
 function joinRoom() {
@@ -97,15 +112,16 @@ function loadRoomAndUserInfo() {
             roomOwnerInfoElement.textContent = `진행자: ${currentRoomData.ownerNickname}`;
             
             const isOwner = currentUser.uid === currentRoomData.ownerId;
-            
-            // AI 버튼 생성 로직 제거
-            ownerControlsElement.innerHTML = ''; // 필요시 다른 방장 컨트롤 추가
+            ownerControlsElement.innerHTML = ''; // 방장 컨트롤 초기화
             roomSettingsBtn.style.display = isOwner ? 'block' : 'none';
 
             const myInfo = currentRoomData.participants?.[currentUser.uid];
             if(myInfo) {
                 updateNicknameDisplay(myInfo.nickname);
                 currentUserRoles = myInfo.roles || (currentRoomData.roles['관전자'] ? ['관전자'] : []);
+            } else if (currentRoomData.participants) { // 방에는 있는데 내 정보가 없다면 강퇴당한 것
+                 document.body.innerHTML = '<h1>방에서 퇴장당했습니다.</h1><a href="index.html">메인으로 돌아가기</a>';
+                 return;
             } else {
                 currentUserRoles = (currentRoomData.roles['관전자'] ? ['관전자'] : []);
             }
@@ -209,6 +225,15 @@ function showRoleAssignmentModal(targetUid, targetNickname, currentRoles) {
     title.textContent = `${targetNickname} 역할 할당`;
     list.innerHTML = '';
     const isSelf = targetUid === currentUser.uid;
+    const isOwner = currentUser.uid === currentRoomData.ownerId;
+
+    // 강퇴 버튼 표시 로직
+    if (isOwner && !isSelf) {
+        kickUserBtn.style.display = 'block';
+        kickUserBtn.onclick = () => handleKickUser(targetUid, targetNickname);
+    } else {
+        kickUserBtn.style.display = 'none';
+    }
 
     const availableRoles = Object.keys(currentRoomData.roles).filter(role => role !== '진행자');
     availableRoles.forEach(role => {
@@ -230,6 +255,21 @@ function showRoleAssignmentModal(targetUid, targetNickname, currentRoles) {
         btn.onclick = () => roleAssignmentModal.style.display = 'none';
     });
     roleAssignmentModal.style.display = 'flex';
+}
+
+// 강퇴 기능 핸들러
+function handleKickUser(targetUid, targetNickname) {
+    if (confirm(`${targetNickname}님을 정말로 강퇴하시겠습니까?`)) {
+        const kickUser = functions.httpsCallable('kickUser');
+        kickUser({ roomId: currentRoomId, targetUid: targetUid })
+            .then(result => {
+                alert(result.data.message);
+                roleAssignmentModal.style.display = 'none';
+            })
+            .catch(error => {
+                alert(`강퇴 실패: ${error.message}`);
+            });
+    }
 }
 
 function setupTypingListeners() {
@@ -310,13 +350,25 @@ function endVote() {
     database.ref(`rooms/${currentRoomId}/vote/isActive`).set(false);
 }
 
-// function startAiAnalysis() { ... } // AI 분석 함수 전체 제거
+// --- 모바일/PC 패널 토글 로직 ---
+function toggleMemoPanel() {
+    if (window.innerWidth <= 768) {
+        // 모바일: 오버레이
+        roomContainer.classList.toggle('show-memo');
+        roomContainer.classList.remove('show-participants');
+    } else {
+        // PC: 너비 조절
+        memoSection.classList.toggle('hidden');
+        chatSection.classList.toggle('full-width');
+        localStorage.setItem(`memoState_${currentRoomId}`, memoSection.classList.contains('hidden') ? 'hidden' : 'visible');
+    }
+}
 
-toggleMemoBtn.addEventListener('click', () => {
-    memoSection.classList.toggle('hidden');
-    chatSection.classList.toggle('full-width');
-    localStorage.setItem(`memoState_${currentRoomId}`, memoSection.classList.contains('hidden') ? 'hidden' : 'visible');
-});
+function toggleParticipantsPanel() {
+    // 모바일 전용
+    roomContainer.classList.toggle('show-participants');
+    roomContainer.classList.remove('show-memo');
+}
 
 inviteBtn.addEventListener('click', () => {
     navigator.clipboard.writeText(window.location.href)
@@ -493,6 +545,7 @@ leaveRoomBtn.addEventListener('click', () => {
     window.location.href = 'index.html';
 });
 
+// 방 설정 모달 로직
 roomSettingsBtn.addEventListener('click', () => {
     const roles = currentRoomData.roles || {};
     settingsRolesList.innerHTML = '';
@@ -544,6 +597,7 @@ function addRoleInputToSettings(name = '', roleData = {}) {
     settingsRolesList.appendChild(li);
 }
 
+// *** '유령 역할' 버그 수정 로직이 이 함수에 포함되었습니다 ***
 roomSettingsForm.addEventListener('submit', async (e) => {
     e.preventDefault();
     const newRoles = { ...currentRoomData.roles };
@@ -564,9 +618,11 @@ roomSettingsForm.addEventListener('submit', async (e) => {
         return;
     }
 
+    // 1. 삭제된 역할('유령 역할') 목록 찾기
     const deletedRoles = Object.keys(newRoles).filter(role => role !== '진행자' && !roleNamesOnScreen.has(role));
     deletedRoles.forEach(roleName => delete newRoles[roleName]);
 
+    // 2. 새 역할 정보 구성
     roleItems.forEach(item => {
         const roleName = item.querySelector('input[type="text"]').value.trim();
         if (roleName) {
@@ -580,19 +636,24 @@ roomSettingsForm.addEventListener('submit', async (e) => {
         }
     });
 
+    // 3. DB에 새 역할 정보 저장
     await database.ref(`rooms/${currentRoomId}/roles`).set(newRoles);
 
+    // 4. *** 유령 역할 버그 수정 ***
+    //    삭제된 역할이 있다면, 모든 참여자 목록을 순회하며 해당 역할을 제거
     if (deletedRoles.length > 0) {
         const participantsRef = database.ref(`rooms/${currentRoomId}/participants`);
+        // .transaction()으로 데이터 동시성 문제를 안전하게 처리
         participantsRef.transaction(participants => {
             if (participants) {
                 for (const uid in participants) {
                     if (participants[uid].roles) {
+                        // 참여자의 역할 목록에서 삭제된 역할들(deletedRoles)을 필터링
                         participants[uid].roles = participants[uid].roles.filter(role => !deletedRoles.includes(role));
                     }
                 }
             }
-            return participants;
+            return participants; // 수정된 participants 데이터 반환
         });
     }
     
@@ -602,5 +663,3 @@ roomSettingsForm.addEventListener('submit', async (e) => {
 roomSettingsModal.querySelectorAll('.cancel-settings-btn').forEach(btn => {
     btn.onclick = () => roomSettingsModal.style.display = 'none';
 });
-
-
