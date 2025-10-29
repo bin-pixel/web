@@ -21,8 +21,14 @@
             <h1 id="room-topic">...</h1>
             <p id="room-owner-info"></p>
             <div id="nickname-area"></div>
-            <div id="owner-controls"></div>
+            <div id="owner-controls" class="owner-controls"></div>
         </header>
+
+        <div id="conclusion-summary-box" class="conclusion-summary-box" style="display: none;">
+            <h3>토론 결론</h3>
+            <pre id="conclusion-summary-text"></pre>
+        </div>
+
         <div class="main-content">
             <aside class="participants-section" id="participants-section">
                 <h4>
@@ -77,11 +83,26 @@
                 <div class="form-group" id="role-assignment-list"></div>
                 <div class="modal-footer space-between">
                     <button type="button" id="kick-user-btn" class="btn-danger" style="display: none;">이 사용자 강퇴</button>
-                    
                     <div>
                         <button type="button" class="cancel-settings-btn">취소</button>
                         <button type="submit">저장</button>
                     </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="conclusion-modal">
+        <div class="modal-content">
+            <h2>토론 결론 요약</h2>
+            <form id="conclusion-form">
+                <div class="form-group">
+                    <label for="conclusion-textarea">토론의 최종 결론을 요약 작성해주세요.</label>
+                    <textarea id="conclusion-textarea" rows="10" placeholder="예: 양측의 주장을 종합한 결과..."></textarea>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="cancel-settings-btn">취소</button>
+                    <button type="submit">결론 게시 및 토론 종료</button>
                 </div>
             </form>
         </div>
